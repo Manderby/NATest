@@ -7,21 +7,21 @@
 #include <stdlib.h>
 #include <time.h>
 #if defined _WIN32
-  #include <windows.h>
   #include <Tlhelp32.h>
+  #include <windows.h>
 #else
-  #include <sys/time.h>
-  #include <sys/sysctl.h>
-  #include <libproc.h>
   #include <errno.h>
+  #include <libproc.h>
   #include <signal.h>
+  #include <sys/sysctl.h>
+  #include <sys/time.h>
+  #include <unistd.h>
 #endif
 
 #include "../../../../../code/NALib/src/NALib.h"
 //#include "../../../NAStruct/NAStack.h"
 //#include "../../../NAStruct/NAList.h"
 //#include "../../NAString.h"
-//#include "../../NAURL.h"
 
 
 
@@ -58,24 +58,24 @@ struct NATesting {
   NAListIterator restrictionIt;
   int curInIndex;
   uint32 in[NA_TEST_INDEX_COUNT];
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     HANDLE logFile;
-  #elif NA_OS == NA_OS_MAC_OS_X
+  #else
     NAFile* logFile;
   #endif
 };
 
-NATesting* na_Testing = NA_NULL;
+NATesting* na_Testing = NATEST_NULL;
 
 
 
-NA_HDEF NAString* na_NewTestApplicationPath(void){
+NATEST_HDEF NAString* na_NewTestApplicationPath(void){
   NAString* exePath;
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     TCHAR modulePath[MAX_PATH];
     GetModuleFileName(NULL, modulePath, MAX_PATH);
     exePath = naNewStringFromSystemString(modulePath);
-  #elif NA_OS == NA_OS_MAC_OS_X
+  #else
     char pathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t pid = (pid_t)getpid();
     proc_pidpath (pid, pathBuf, sizeof(pathBuf));
@@ -95,10 +95,10 @@ NA_HDEF NAString* na_NewTestApplicationPath(void){
 
 
 
-NA_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NATestData* parent, int lineNum){
+NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NATestData* parent, int lineNum){
   testData->name = name;
   testData->lineNum = lineNum;
-  testData->success = NA_TRUE;
+  testData->success = NATEST_TRUE;
   naInitStack(&(testData->childs), sizeof(NATestData), 0, 0);
   testData->childSuccessCount = 0;
   testData->leafSuccessCount = 0;
@@ -108,14 +108,14 @@ NA_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NATestD
 
 
 
-NA_HIDEF void na_ClearTestingData(NATestData* testData){
-  naForeachStackMutable(&(testData->childs), (NAMutator)na_ClearTestingData);
+NATEST_HIDEF void na_ClearTestingData(NATestData* testData){
+  naForeachStackMutable(&(testData->childs), (NATestMutator)na_ClearTestingData);
   naClearStack(&(testData->childs));
 }
 
 
 
-NA_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
+NATEST_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
   NAString* str = naNewStringWithFormat("%s", testData->name);
   if(escape)
   {
@@ -137,15 +137,15 @@ NA_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
 
 
 
-NA_HIDEF void na_PrintTestName(NATestData* testData){
-  NAString* testPath = na_NewTestPath(testData, NA_FALSE);
+NATEST_HIDEF void na_PrintTestName(NATestData* testData){
+  NAString* testPath = na_NewTestPath(testData, NATEST_FALSE);
   printf("%s", naGetStringUTF8Pointer(testPath));
   naDelete(testPath);
 }
 
 
 
-NA_HIDEF void na_PrintRatio(int successCount, int totalCount){
+NATEST_HIDEF void na_PrintRatio(int successCount, int totalCount){
   if(totalCount){
     double ratio = (double)successCount / (double)totalCount * 100.;
     printf (" (%.02f%%)", ratio);
@@ -154,7 +154,7 @@ NA_HIDEF void na_PrintRatio(int successCount, int totalCount){
 
 
 
-NA_HIDEF void na_PrintTestGroup(NATestData* testData){
+NATEST_HIDEF void na_PrintTestGroup(NATestData* testData){
   int childTotalCount = (int)naGetStackCount(&(testData->childs));
   if(testData->totalLeafCount == 0){return;}
 
@@ -197,14 +197,14 @@ NATEST_DEF NATestBool naStartTesting(
   na_Testing = naAlloc(NATesting);
 
   na_Testing->rootTestData = naAlloc(NATestData);
-  na_InitTestingData(na_Testing->rootTestData, rootName, NA_NULL, 0);
+  na_InitTestingData(na_Testing->rootTestData, rootName, NATEST_NULL, 0);
 
   na_Testing->curTestData = na_Testing->rootTestData;
   na_Testing->timePerBenchmark = timePerBenchmark;
   na_Testing->printAllTestGroups = printAllGroups;
-  na_Testing->letCrashTestsCrash = NA_FALSE;
-  na_Testing->testingStartSuccessful = NA_FALSE;
-  na_SetTestCaseRunning(NA_FALSE);
+  na_Testing->letCrashTestsCrash = NATEST_FALSE;
+  na_Testing->testingStartSuccessful = NATEST_FALSE;
+  na_SetTestCaseRunning(NATEST_FALSE);
   na_ResetErrorCount();
 
   for(na_Testing->curInIndex = 0; na_Testing->curInIndex < NA_TEST_INDEX_COUNT; na_Testing->curInIndex++){
@@ -219,7 +219,7 @@ NATEST_DEF NATestBool naStartTesting(
     {
       if(argv[i][0] == '-'){
         if(argv[i][1] == 'C'){
-          na_Testing->letCrashTestsCrash = NA_TRUE;
+          na_Testing->letCrashTestsCrash = NATEST_TRUE;
         }else{
           printf("Unrecognized executable argument: %c" NA_NL, argv[i][1]);
         }
@@ -246,7 +246,7 @@ NATEST_DEF NATestBool naStartTesting(
   NAString* runPath = naNewStringWithBasenameOfPath(modulePath);
   NAString* crashLogPath = naNewStringWithFormat("%s_latestCrash.log", naGetStringUTF8Pointer(runPath));
 
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     SECURITY_ATTRIBUTES securityAttributes;
       securityAttributes.nLength = sizeof(securityAttributes);
       securityAttributes.lpSecurityDescriptor = NULL;
@@ -260,7 +260,7 @@ NATEST_DEF NATestBool naStartTesting(
           FILE_ATTRIBUTE_NORMAL,
           NULL );
     naFree(systemCrashLogPath);
-  #elif NA_OS == NA_OS_MAC_OS_X
+  #else
     na_Testing->logFile = naCreateFileWritingPath(naGetStringUTF8Pointer(crashLogPath), NA_FILEMODE_DEFAULT);
   #endif
 
@@ -298,21 +298,21 @@ NATEST_DEF void naStopTesting(){
 
   na_ClearTestingData(na_Testing->rootTestData);
   naFree(na_Testing->rootTestData);
-  naForeachStackpMutable(&(na_Testing->untestedStrings), (NAMutator)naDelete);
+  naForeachStackpMutable(&(na_Testing->untestedStrings), (NATestMutator)naDelete);
   naClearStack(&(na_Testing->untestedStrings));
 
   naClearListIterator(&(na_Testing->restrictionIt));
-  naForeachListMutable(&(na_Testing->testRestriction), (NAMutator)naDelete);
+  naForeachListMutable(&(na_Testing->testRestriction), (NATestMutator)naDelete);
   naClearList(&(na_Testing->testRestriction));
 
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     CloseHandle(na_Testing->logFile);
-  #elif NA_OS == NA_OS_MAC_OS_X
+  #else
     naReleaseFile(na_Testing->logFile);
   #endif
 
   naFree(na_Testing);
-  na_Testing = NA_NULL;
+  na_Testing = NATEST_NULL;
 }
 
 
@@ -349,7 +349,7 @@ NA_HDEF void na_UpdateTestParentLeaf(
     if(testData->success && testData->parent){
       testData->parent->childSuccessCount--;
     }
-    testData->success = NA_FALSE;
+    testData->success = NATEST_FALSE;
   }
 }
 
@@ -364,8 +364,8 @@ NA_HDEF void na_AddTest(const char* expr, int success, int lineNum){
   NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   if(na_GetErrorCount() > 0){
-    testData->success = NA_FALSE;
-    na_UpdateTestParentLeaf(na_Testing->curTestData, NA_FALSE);
+    testData->success = NATEST_FALSE;
+    na_UpdateTestParentLeaf(na_Testing->curTestData, NATEST_FALSE);
     printf("  ");
     if(testData->parent){na_PrintTestName(testData->parent);}
     printf(" Line %d: %d errors occured in %s" NA_NL, lineNum, na_GetErrorCount(), expr);
@@ -436,7 +436,7 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
   // with a path to the current test and the -C argument which causes the
   // test app to execute the test even if it is expected to crash.
 
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInfo;
 
@@ -448,21 +448,21 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     startupInfo.hStdError = na_Testing->logFile;
 
     NAString* modulePath = na_NewTestApplicationPath();
-    NAString* testPath = na_NewTestPath(testData, NA_TRUE);
+    NAString* testPath = na_NewTestPath(testData, NATEST_TRUE);
     
     // DO NOT TURN -C OPTION OFF!!!
     NAString* commandPath = naNewStringWithFormat("\"%s\" -C %s", naGetStringUTF8Pointer(modulePath), naGetStringUTF8Pointer(testPath));
     TCHAR* systemCommandPath = naAllocSystemStringWithUTF8String(naGetStringUTF8Pointer(commandPath));
 
     BOOL success = CreateProcess(
-      NA_NULL,
+      NATEST_NULL,
       systemCommandPath,
-      NA_NULL,
-      NA_NULL,
-      NA_TRUE, /* bInheritHandles */
+      NATEST_NULL,
+      NATEST_NULL,
+      NATEST_TRUE, /* bInheritHandles */
       0,
-      NA_NULL,
-      NA_NULL,
+      NATEST_NULL,
+      NATEST_NULL,
       &startupInfo,
       &processInfo
     );
@@ -494,7 +494,7 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     naDelete(testPath);
     naDelete(commandPath);
   
-  #elif NA_OS == NA_OS_MAC_OS_X
+  #else
 
     // Set the logFile as the output for stdout and stderr
     int oldStdOut = dup(1);
@@ -514,7 +514,7 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     curTestPathStringIndex++;
 
     NATestData* curTestData = na_Testing->curTestData;
-    while(NA_TRUE){
+    while(NATEST_TRUE){
       testPathStrings[curTestPathStringIndex] = curTestData->name;
       curTestPathStringIndex++;
       if(curTestData->parent){
@@ -546,7 +546,7 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       naDelete(pathItemString);
       ++i;
     }
-    argv[curTestPathStringIndex + 2] = NA_NULL;
+    argv[curTestPathStringIndex + 2] = NATEST_NULL;
 
     pid_t childPid = fork();
     if(!childPid){
@@ -648,8 +648,8 @@ NA_HDEF NATestBool na_LetCrashTestCrash(){
 NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
   const NAString* allowedGroup = naGetListCurConst(&(na_Testing->restrictionIt));
   NATestBool shallExecute =
-    naEqualStringToUTF8CString(allowedGroup, "*", NA_TRUE) ||
-    naEqualStringToUTF8CString(allowedGroup, name, NA_TRUE);
+    naEqualStringToUTF8CString(allowedGroup, "*", NATEST_TRUE) ||
+    naEqualStringToUTF8CString(allowedGroup, name, NATEST_TRUE);
   if(shallExecute){
     naIterateList(&(na_Testing->restrictionIt));
     if(naIsListAtInitial(&(na_Testing->restrictionIt))){
@@ -707,7 +707,7 @@ NA_HDEF uint32 na_GetBenchmarkIn(){
 
 NA_HDEF double na_BenchmarkTime(){
   // Note: Reimplemented here because NADateTime uses int64 to compute.
-  #if NA_OS == NA_OS_WINDOWS
+  #if defined _WIN32
     FILETIME fileTime;
     GetSystemTimeAsFileTime(&fileTime);
     fileTime.dwLowDateTime;
@@ -769,7 +769,7 @@ NATEST_DEF NATestBool naStartTesting(
   #if NA_DEBUG
     naError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
   #endif
-  return NA_FALSE;
+  return NATEST_FALSE;
 }
 
 
