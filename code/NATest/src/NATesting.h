@@ -1,9 +1,10 @@
-
 #ifndef NA_TESTING_INCLUDED
 #define NA_TESTING_INCLUDED
 
-//#include "../NABase.h"
-#include "../../../../../code/NALib/src/NALib.h"
+// All necessary includes and definitions.
+#include "NATestingEnvironment.h"
+
+
 
 // Starts and stops the testing. Provide the top name of the code you
 // want to test. The timePerBenchmark denotes the time spent per benchmark
@@ -14,18 +15,18 @@
 // Returns true if the testing did start sucessfully, false otherwise.
 // A common reason for an unsuccessful start is to forget the rootName in
 // the command line arguments.
-NA_API NABool naStartTesting(
-  const NAUTF8Char* rootName,
+NATEST_API NATestBool naStartTesting(
+  const NATestUTF8Char* rootName,
   double timePerBenchmark,
-  NABool printAllGroups,
+  NATestBool printAllGroups,
   int argc,
   const char** argv);
 
 // Stops the testing and prints some final results.
-NA_API void naStopTesting(void);
+NATEST_API void naStopTesting(void);
 
 // Prints a list of all strings added by calling naUntested.
-NA_API void naPrintUntested(void);
+NATEST_API void naPrintUntested(void);
 
 // Tests successfully if the given expression evaluates to true.
 #define naTest(expr)

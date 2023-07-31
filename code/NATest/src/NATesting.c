@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#if NA_OS == NA_OS_WINDOWS
+#if defined _WIN32
   #include <windows.h>
   #include <Tlhelp32.h>
-#elif NA_OS == NA_OS_MAC_OS_X
+#else
   #include <sys/time.h>
   #include <sys/sysctl.h>
   #include <libproc.h>
@@ -35,7 +35,7 @@ typedef struct NATestData NATestData;
 struct NATestData {
   const char* name;
   int lineNum;
-  NABool success;
+  NATestBool success;
   NAStack childs;
   int childSuccessCount;
   int leafSuccessCount;
@@ -48,10 +48,10 @@ struct NATesting {
   NATestData* rootTestData;
   NATestData* curTestData;
   double timePerBenchmark;
-  NABool printAllTestGroups;
-  NABool testCaseRunning;
-  NABool letCrashTestsCrash;
-  NABool testingStartSuccessful;
+  NATestBool printAllTestGroups;
+  NATestBool testCaseRunning;
+  NATestBool letCrashTestsCrash;
+  NATestBool testingStartSuccessful;
   int errorCount;
   NAStack untestedStrings;
   NAList testRestriction;
@@ -115,7 +115,7 @@ NA_HIDEF void na_ClearTestingData(NATestData* testData){
 
 
 
-NA_HDEF NAString* na_NewTestPath(NATestData* testData, NABool escape){
+NA_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
   NAString* str = naNewStringWithFormat("%s", testData->name);
   if(escape)
   {
@@ -175,7 +175,13 @@ NA_HIDEF void na_PrintTestGroup(NATestData* testData){
 
 
 
-NA_DEF NABool naStartTesting(const NAUTF8Char* rootName, double timePerBenchmark, NABool printAllGroups, int argc, const char** argv){
+NATEST_DEF NATestBool naStartTesting(
+  const NATestUTF8Char* rootName,
+  double timePerBenchmark,
+  NATestBool printAllGroups,
+  int argc,
+  const char** argv)
+{
   #if NA_DEBUG
     if(na_Testing)
       naError("Testing already running.");
@@ -268,7 +274,7 @@ NA_DEF NABool naStartTesting(const NAUTF8Char* rootName, double timePerBenchmark
 
 
 
-NA_DEF void naStopTesting(){
+NATEST_DEF void naStopTesting(){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
@@ -311,7 +317,7 @@ NA_DEF void naStopTesting(){
 
 
 
-NA_DEF void naPrintUntested(void){
+NATEST_DEF void naPrintUntested(void){
   int stackCount = (int)naGetStackCount(&(na_Testing->untestedStrings));
   if(!stackCount){
     printf(NA_NL "No untested functionality." NA_NL);
@@ -328,7 +334,10 @@ NA_DEF void naPrintUntested(void){
 
 
 
-NA_HDEF void na_UpdateTestParentLeaf(NATestData* testData, NABool leafSuccess){
+NA_HDEF void na_UpdateTestParentLeaf(
+  NATestData* testData,
+  NATestBool leafSuccess)
+{
   if(testData->parent){
     na_UpdateTestParentLeaf(testData->parent, leafSuccess);
   }
@@ -361,8 +370,8 @@ NA_HDEF void na_AddTest(const char* expr, int success, int lineNum){
     if(testData->parent){na_PrintTestName(testData->parent);}
     printf(" Line %d: %d errors occured in %s" NA_NL, lineNum, na_GetErrorCount(), expr);
   }else{
-    testData->success = (NABool)success;
-    na_UpdateTestParentLeaf(na_Testing->curTestData, (NABool)success);
+    testData->success = (NATestBool)success;
+    na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)success);
     if(!success){
       printf("  ");
       if(testData->parent){na_PrintTestName(testData->parent);}
@@ -384,7 +393,7 @@ NA_HDEF void na_AddTestError(const char* expr, int lineNum){
   NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   testData->success = na_GetErrorCount() != 0;
-  na_UpdateTestParentLeaf(na_Testing->curTestData, (NABool)testData->success);
+  na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
   if(!testData->success){
     printf("  ");
     if(testData->parent){na_PrintTestName(testData->parent);}
@@ -466,7 +475,7 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       CloseHandle(processInfo.hThread);
 
       testData->success = exitCode != EXIT_SUCCESS;
-      na_UpdateTestParentLeaf(na_Testing->curTestData, (NABool)testData->success);
+      na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
 
       if(!testData->success){
         printf("  ");
@@ -564,12 +573,12 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       }
       naFree(argv);
 
-      NABool hasExitedNormally = WIFEXITED(exitCode);
-//      NABool hasBeenSignaled = WIFSIGNALED(exitCode);
+      NATestBool hasExitedNormally = WIFEXITED(exitCode);
+//      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
 //      int sigNum = WTERMSIG(exitCode);
       int exitStatus = WEXITSTATUS(exitCode);
       testData->success = !hasExitedNormally || exitStatus != EXIT_SUCCESS;
-      na_UpdateTestParentLeaf(na_Testing->curTestData, (NABool)testData->success);
+      na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
 
       // Revert the file descriptors
       close(1);
@@ -600,13 +609,13 @@ NA_HDEF void na_RegisterUntested(const char* text){
 
 
 
-NA_HDEF NABool na_GetTestCaseRunning(){
+NA_HDEF NATestBool na_GetTestCaseRunning(){
   return na_Testing->testCaseRunning;
 }
 
 
 
-NA_HDEF void na_SetTestCaseRunning(NABool running){
+NA_HDEF void na_SetTestCaseRunning(NATestBool running){
   na_Testing->testCaseRunning = running;
 }
 
@@ -630,15 +639,15 @@ NA_HDEF int na_GetErrorCount(void){
 
 
 
-NA_HDEF NABool na_LetCrashTestCrash(){
+NA_HDEF NATestBool na_LetCrashTestCrash(){
   return na_Testing->letCrashTestsCrash;
 }
 
 
 
-NA_HDEF NABool na_ShallExecuteGroup(const char* name){
+NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
   const NAString* allowedGroup = naGetListCurConst(&(na_Testing->restrictionIt));
-  NABool shallExecute =
+  NATestBool shallExecute =
     naEqualStringToUTF8CString(allowedGroup, "*", NA_TRUE) ||
     naEqualStringToUTF8CString(allowedGroup, name, NA_TRUE);
   if(shallExecute){
@@ -655,13 +664,13 @@ NA_HDEF NABool na_ShallExecuteGroup(const char* name){
 
 
 
-NA_HDEF NABool na_StartTestGroup(const char* name, int lineNum){
+NA_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
   #endif
 
-  NABool shallExecute = na_ShallExecuteGroup(name);
+  NATestBool shallExecute = na_ShallExecuteGroup(name);
   if(shallExecute)
   {
     NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
@@ -745,7 +754,13 @@ NA_HDEF void na_PrintBenchmark(double timeDiff, size_t testSize, const char* exp
 
 #else // NA_TESTING_ENABLED == 1fCould
 
-NA_DEF NABool naStartTesting(const NAUTF8Char* rootName, double timePerBenchmark, NABool printAllGroups, int argc, const char** argv){
+NATEST_DEF NATestBool naStartTesting(
+  const NATestUTF8Char* rootName,
+  double timePerBenchmark,
+  NATestBool printAllGroups,
+  int argc,
+  const char** argv)
+{
   NA_UNUSED(rootName);
   NA_UNUSED(timePerBenchmark);
   NA_UNUSED(printAllGroups);
@@ -759,7 +774,7 @@ NA_DEF NABool naStartTesting(const NAUTF8Char* rootName, double timePerBenchmark
 
 
 
-NA_DEF void naStopTesting(){
+NATEST_DEF void naStopTesting(){
   #if NA_DEBUG
     naError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
   #endif

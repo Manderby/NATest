@@ -21,26 +21,26 @@
 
 #if NA_TESTING_ENABLED == 1
 
-NA_HAPI void   na_AddTest(const char* expr, int success, int lineNum);
-NA_HAPI void   na_AddTestError(const char* expr, int lineNum);
-NA_HAPI void   na_AddTestCrash(const char* expr, int lineNum);
-NA_HAPI void   na_ExecuteCrashProcess(const char* expr, int lineNum);
-NA_HAPI NABool na_StartTestGroup(const char* name, int lineNum);
-NA_HAPI void   na_StopTestGroup(void);
-NA_HAPI void   na_RegisterUntested(const char* text);
-NA_HAPI NABool na_GetTestCaseRunning(void);
-NA_HAPI void   na_SetTestCaseRunning(NABool running);
-NA_HAPI void   na_IncErrorCount(void);
-NA_HAPI void   na_ResetErrorCount(void);
-NA_HAPI int    na_GetErrorCount(void);
-NA_HDEF NABool na_LetCrashTestCrash(void);
-NA_HAPI NABool na_ShallExecuteGroup(const char* name);
+NATEST_HAPI void       na_AddTest(const char* expr, int success, int lineNum);
+NATEST_HAPI void       na_AddTestError(const char* expr, int lineNum);
+NATEST_HAPI void       na_AddTestCrash(const char* expr, int lineNum);
+NATEST_HAPI void       na_ExecuteCrashProcess(const char* expr, int lineNum);
+NATEST_HAPI NATestBool na_StartTestGroup(const char* name, int lineNum);
+NATEST_HAPI void       na_StopTestGroup(void);
+NATEST_HAPI void       na_RegisterUntested(const char* text);
+NATEST_HAPI NATestBool na_GetTestCaseRunning(void);
+NATEST_HAPI void       na_SetTestCaseRunning(NATestBool running);
+NATEST_HAPI void       na_IncErrorCount(void);
+NATEST_HAPI void       na_ResetErrorCount(void);
+NATEST_HAPI int        na_GetErrorCount(void);
+NATEST_HDEF NATestBool na_LetCrashTestCrash(void);
+NATEST_HAPI NATestBool na_ShallExecuteGroup(const char* name);
 
-NA_HAPI uint32 na_GetBenchmarkIn(void);
-NA_HAPI double na_BenchmarkTime(void);
-NA_HAPI double na_GetBenchmarkLimit(void);
-NA_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
-NA_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum);
+NATEST_HAPI uint32 na_GetBenchmarkIn(void);
+NATEST_HAPI double na_BenchmarkTime(void);
+NATEST_HAPI double na_GetBenchmarkLimit(void);
+NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
+NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum);
 
 
 
@@ -66,7 +66,7 @@ NA_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* e
 #define naTest(expr)\
   if(na_ShallExecuteGroup(#expr)){\
     NA_START_TEST_CASE\
-    NABool success = expr;\
+    NATestBool success = expr;\
     NA_STOP_TEST_CASE\
     na_AddTest(#expr, success, __LINE__);\
   }
