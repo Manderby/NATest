@@ -1,5 +1,5 @@
 
-#include "../../NATesting.h"
+#include "NATesting.h"
 
 #if NA_TESTING_ENABLED == 1
 
@@ -17,10 +17,11 @@
   #include <signal.h>
 #endif
 
-#include "../../../NAStruct/NAStack.h"
-#include "../../../NAStruct/NAList.h"
-#include "../../NAString.h"
-#include "../../NAURL.h"
+#include "../../../../../code/NALib/src/NALib.h"
+//#include "../../../NAStruct/NAStack.h"
+//#include "../../../NAStruct/NAList.h"
+//#include "../../NAString.h"
+//#include "../../NAURL.h"
 
 
 

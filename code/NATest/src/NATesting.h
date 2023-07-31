@@ -2,7 +2,8 @@
 #ifndef NA_TESTING_INCLUDED
 #define NA_TESTING_INCLUDED
 
-#include "../NABase.h"
+//#include "../NABase.h"
+#include "../../../../../code/NALib/src/NALib.h"
 
 // Starts and stops the testing. Provide the top name of the code you
 // want to test. The timePerBenchmark denotes the time spent per benchmark
@@ -61,7 +62,7 @@ NA_API void naPrintUntested(void);
 
 
 // Inline implementations are in a separate file:
-#include "Core/NATesting/NATestingII.h"
+#include "NATestingII.h"
 
 
 
