@@ -19,8 +19,6 @@
 
 
 
-#if NA_TESTING_ENABLED == 1
-
 NATEST_HAPI void       na_AddTest(const char* expr, int success, int lineNum);
 NATEST_HAPI void       na_AddTestError(const char* expr, int lineNum);
 NATEST_HAPI void       na_AddTestCrash(const char* expr, int lineNum);
@@ -155,28 +153,6 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
 
 #define naTestIn\
   na_GetBenchmarkIn()
-
-
-
-#else // NA_TESTING_ENABLED == 1
-
-#define naTest(expr)\
-  NA_UNUSED(expr)
-#define naTestVoid(expr)\
-  NA_UNUSED(expr)
-#define naTestError(expr)\
-  NA_UNUSED(expr)
-#define naTestCrash(expr)\
-  NA_UNUSED(expr)
-#define naTestGroup(string)\
-  NA_UNUSED(string);\
-  for(int g = 0; g < 1 ; g++)
-#define naTestFunction(function)
-#define naUntested(text)
-#define naBenchmark(expr)
-#define naTestIn 0
-
-#endif // NA_TESTING_ENABLED == 1
 
 
 

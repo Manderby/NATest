@@ -3,8 +3,6 @@
 #include "NATestString.h"
 #include "NATestList.h"
 
-#if NA_TESTING_ENABLED == 1
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -117,7 +115,6 @@ NATEST_HIDEF void na_ClearTestingData(NATestData* testData){
     testData->childsCount--;
   }
   free(testData->childs);
-  free(testData);
 }
 
 
@@ -317,9 +314,10 @@ NATEST_DEF void naStopTesting(){
   }
 
   na_ClearTestingData(na_Testing->rootTestData);
+  free(na_Testing->rootTestData);
+  
   while(na_Testing->untestedStringsCount){
     NATestListItem* lastItem = na_Testing->untestedStrings->prev;
-    free(lastItem->data);
     naDeallocateTestListItem(lastItem);
     na_Testing->untestedStringsCount--;
   }
@@ -352,6 +350,7 @@ NATEST_DEF void naPrintUntested(void){
     while(cur != na_Testing->untestedStrings){
       const NATestUTF8Char* string = (const NATestUTF8Char*)cur->data;
       printf("U %s" NATEST_NL, string);
+      cur = cur->next;
     }
   }
 }
@@ -795,38 +794,6 @@ NATEST_HDEF void na_PrintBenchmark(double timeDiff, size_t testSize, const char*
       printf("Line %4d: %6.2f   : %s" NATEST_NL, lineNum, execsPerSec, exprString);
   }
 }
-
-
-
-#else // NA_TESTING_ENABLED == 1fCould
-
-NATEST_DEF NATestBool naStartTesting(
-  const NATestUTF8Char* rootName,
-  double timePerBenchmark,
-  NATestBool printAllGroups,
-  int argc,
-  const char** argv)
-{
-  NATEST_UNUSED(rootName);
-  NATEST_UNUSED(timePerBenchmark);
-  NATEST_UNUSED(printAllGroups);
-  NATEST_UNUSED(argc);
-  NATEST_UNUSED(argv);
-  #if NA_DEBUG
-    na_TestError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
-  #endif
-  return NATEST_FALSE;
-}
-
-
-
-NATEST_DEF void naStopTesting(){
-  #if NA_DEBUG
-    na_TestError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
-  #endif
-}
-
-#endif // NA_TESTING_ENABLED == 1
 
 
 
