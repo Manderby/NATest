@@ -5,30 +5,23 @@ typedef struct NATestListItem NATestListItem;
 struct NATestListItem{
   NATestListItem* prev;
   NATestListItem* next;
-  NATestUTF8Char* string;
+  void* data;
 };
 
 
 
-NATestListItem* naAllocateTestListItem(const NATestUTF8Char* string){
+NATestListItem* naAllocateTestListItem(void* data){
   NATestListItem* item = (NATestListItem*)malloc(sizeof(NATestListItem));
   item->prev = item;
   item->next = item;
-  if(string){
-    size_t len = strlen(string);
-    item->string = malloc(len + 1);
-    item->string[len] = '\0';
-    memcpy(item->string, string, len);
-  }else{
-    item->string = NATEST_NULL;
-  }
+  item->data = data;
   return item;
 }
 
 void naDeallocateTestListItem(NATestListItem* item){
   item->prev->next = item->next;
   item->next->prev = item->prev;
-  free(item->string);
+  free(item->data);
   free(item);
 }
 

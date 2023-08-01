@@ -77,19 +77,19 @@
 
 
 
-#define NATEST_API     NATEST_LINKER_NO_EXPORT
-#define NATEST_DEF     NATEST_LINKER_NO_EXPORT
-#define NATEST_IAPI    static NATEST_INLINE
-#define NATEST_IDEF    static NATEST_INLINE
-#define NATEST_HAPI    NATEST_LINKER_NO_EXPORT
-#define NATEST_HDEF    NATEST_LINKER_NO_EXPORT
-#define NATEST_HIAPI   static NATEST_INLINE
-#define NATEST_HIDEF   static NATEST_INLINE
-#define NATEST_FALSE   0
-#define NATEST_TRUE    1
-#define NATEST_MAX_u8  0xff
-#define NATEST_MAX_u16 0xffff
-
+#define NATEST_API        NATEST_LINKER_NO_EXPORT
+#define NATEST_DEF        NATEST_LINKER_NO_EXPORT
+#define NATEST_IAPI       static NATEST_INLINE
+#define NATEST_IDEF       static NATEST_INLINE
+#define NATEST_HAPI       NATEST_LINKER_NO_EXPORT
+#define NATEST_HDEF       NATEST_LINKER_NO_EXPORT
+#define NATEST_HIAPI      static NATEST_INLINE
+#define NATEST_HIDEF      static NATEST_INLINE
+#define NATEST_FALSE      0
+#define NATEST_TRUE       1
+#define NATEST_MAX_u8     0xff
+#define NATEST_MAX_u16    0xffff
+#define NATEST_UNUSED(x)  (void)(x)
 
 typedef void     (*NATestMutator)(void*);
 typedef int      NATestBool;

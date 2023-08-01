@@ -21,8 +21,6 @@
   #include <unistd.h>
 #endif
 
-#include "../../../../../code/NALib/src/NAStruct/NAStack.h"
-
 
 
 // How many precomputed random numbers.
@@ -36,7 +34,8 @@ struct NATestData {
   const char* name;
   int lineNum;
   NATestBool success;
-  NAStack childs;
+  NATestListItem* childs;
+  size_t childsCount;
   int childSuccessCount;
   int leafSuccessCount;
   int totalLeafCount;
@@ -53,7 +52,8 @@ struct NATesting {
   NATestBool letCrashTestsCrash;
   NATestBool testingStartSuccessful;
   int errorCount;
-  NAStack untestedStrings;
+  NATestListItem* untestedStrings;
+  size_t untestedStringsCount;
   NATestListItem* testRestriction;
   NATestListItem* restrictionIt;
   int curInIndex;
@@ -99,7 +99,8 @@ NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NAT
   testData->name = name;
   testData->lineNum = lineNum;
   testData->success = NATEST_TRUE;
-  naInitStack(&(testData->childs), sizeof(NATestData), 0, 0);
+  testData->childs = naAllocateTestListItem(NATEST_NULL);
+  testData->childsCount = 0;
   testData->childSuccessCount = 0;
   testData->leafSuccessCount = 0;
   testData->totalLeafCount = 0;
@@ -109,8 +110,14 @@ NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NAT
 
 
 NATEST_HIDEF void na_ClearTestingData(NATestData* testData){
-  naForeachStackMutable(&(testData->childs), (NATestMutator)na_ClearTestingData);
-  naClearStack(&(testData->childs));
+  while(testData->childsCount){
+    NATestListItem* lastItem = testData->childs->prev;
+    na_ClearTestingData(lastItem->data);
+    naDeallocateTestListItem(lastItem);
+    testData->childsCount--;
+  }
+  free(testData->childs);
+  free(testData);
 }
 
 
@@ -120,16 +127,16 @@ NATEST_HDEF NATestUTF8Char* na_NewTestPath(NATestData* testData, NATestBool esca
   if(escape)
   {
     NATestUTF8Char* escapeName = naAllocTestStringCEscaped(str);
-    naDelete(str);
+    free(str);
     str = naAllocTestStringWithFormat("\"%s\"", escapeName);
-    naDelete(escapeName);
+    free(escapeName);
   }
 
   if(testData->parent){
     NATestUTF8Char* parentName = na_NewTestPath(testData->parent, escape);
     NATestUTF8Char* combinedName = naAllocTestStringWithFormat("%s %s", parentName, str);
-    naDelete(parentName);
-    naDelete(str);
+    free(parentName);
+    free(str);
     str = combinedName;
   }
   return str;
@@ -140,7 +147,7 @@ NATEST_HDEF NATestUTF8Char* na_NewTestPath(NATestData* testData, NATestBool esca
 NATEST_HIDEF void na_PrintTestName(NATestData* testData){
   NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_FALSE);
   printf("%s", testPath);
-  naDelete(testPath);
+  free(testPath);
 }
 
 
@@ -148,14 +155,14 @@ NATEST_HIDEF void na_PrintTestName(NATestData* testData){
 NATEST_HIDEF void na_PrintRatio(int successCount, int totalCount){
   if(totalCount){
     double ratio = (double)successCount / (double)totalCount * 100.;
-    printf (" (%.02f%%)", ratio);
+    printf(" (%.02f%%)", ratio);
   }
 }
 
 
 
 NATEST_HIDEF void na_PrintTestGroup(NATestData* testData){
-  int childTotalCount = (int)naGetStackCount(&(testData->childs));
+  int childTotalCount = (int)testData->childsCount;
   if(testData->totalLeafCount == 0){return;}
 
   printf("G ");
@@ -163,13 +170,13 @@ NATEST_HIDEF void na_PrintTestGroup(NATestData* testData){
   if(testData->totalLeafCount == childTotalCount){
     printf(": %d / %d Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
     na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
-    printf(NA_NL);
+    printf(NATEST_NL);
   }else{
     printf(": %d / %d Groups ok", testData->childSuccessCount, childTotalCount);
     na_PrintRatio(testData->childSuccessCount, childTotalCount);
     printf(", %d / %d Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
     na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
-    printf(NA_NL);
+    printf(NATEST_NL);
   }
 }
 
@@ -188,15 +195,15 @@ NATEST_DEF NATestBool naStartTesting(
   #endif
 
 //  if(argc > 1){
-//    printf("Runnging tests with args:" NA_NL);
+//    printf("Runnging tests with args:" NATEST_NL);
 //    for(int i = 1; i < argc; ++i){
 //      printf("%s ", argv[i]);
 //    }
 //  }
 
-  na_Testing = naAlloc(NATesting);
+  na_Testing = (NATesting*)malloc(sizeof(NATesting));
 
-  na_Testing->rootTestData = naAlloc(NATestData);
+  na_Testing->rootTestData = (NATestData*)malloc(sizeof(NATestData));
   na_InitTestingData(na_Testing->rootTestData, rootName, NATEST_NULL, 0);
 
   na_Testing->curTestData = na_Testing->rootTestData;
@@ -211,7 +218,8 @@ NATEST_DEF NATestBool naStartTesting(
     na_Testing->in[na_Testing->curInIndex] = ((uint32)rand() << 20) ^ ((uint32)rand() << 10) ^ ((uint32)rand());
   }
 
-  naInitStack(&(na_Testing->untestedStrings), sizeof(NATestUTF8Char*), 0, 0);
+  na_Testing->untestedStrings = naAllocateTestListItem(NATEST_NULL);
+  na_Testing->untestedStringsCount = 0;
   na_Testing->testRestriction = naAllocateTestListItem(NATEST_NULL);
 
   if(argc > 1){
@@ -221,14 +229,14 @@ NATEST_DEF NATestBool naStartTesting(
         if(argv[i][1] == 'C'){
           na_Testing->letCrashTestsCrash = NATEST_TRUE;
         }else{
-          printf("Unrecognized executable argument: %c" NA_NL, argv[i][1]);
+          printf("Unrecognized executable argument: %c" NATEST_NL, argv[i][1]);
         }
       }else{
         NATestUTF8Char* argString = naAllocTestStringWithFormat("%s", argv[i]);
         if(argString[0] == '\"'){
           NATestUTF8Char* newArgString = naAllocTestStringDequote(argString);
 //          printf("Quotes detected: %s -> %s\n", naGetStringUTF8Pointer(argString), naGetStringUTF8Pointer(newArgString));
-          naDelete(argString);
+          free(argString);
           argString = newArgString;
         }
         NATestListItem* newItem = naAllocateTestListItem(argString);
@@ -238,7 +246,10 @@ NATEST_DEF NATestBool naStartTesting(
   }
   
   if(naIsTestListEmpty(na_Testing->testRestriction)){
-    NATestListItem* newItem = naAllocateTestListItem("*");
+    NATestUTF8Char* star = malloc(2);
+    star[0] = '*';
+    star[1] = '\0';
+    NATestListItem* newItem = naAllocateTestListItem(star);
     naAddTestListBefore(na_Testing->testRestriction, newItem);
   }
   na_Testing->restrictionIt = na_Testing->testRestriction->next;
@@ -261,7 +272,7 @@ NATEST_DEF NATestBool naStartTesting(
       CREATE_ALWAYS,
       FILE_ATTRIBUTE_NORMAL,
       NULL );
-    naFree(systemCrashLogPath);
+    free(systemCrashLogPath);
   #else
     na_Testing->logFile = open(
       crashLogPath,
@@ -293,22 +304,26 @@ NATEST_DEF void naStopTesting(){
 
   if(na_Testing->testingStartSuccessful){
     if(na_Testing->rootTestData->totalLeafCount == 0){
-      printf("No tests executed." NA_NL);
+      printf("No tests executed." NATEST_NL);
     }else{
       if(na_Testing->rootTestData->success){
-        printf("All test successful." NA_NL);
+        printf("All test successful." NATEST_NL);
         if(!na_Testing->printAllTestGroups){
           na_PrintTestGroup(na_Testing->rootTestData);
         }
       }
     }
-    printf("Testing finished." NA_NL NA_NL);
+    printf("Testing finished." NATEST_NL NATEST_NL);
   }
 
   na_ClearTestingData(na_Testing->rootTestData);
-  naFree(na_Testing->rootTestData);
-  naForeachStackpMutable(&(na_Testing->untestedStrings), (NATestMutator)free);
-  naClearStack(&(na_Testing->untestedStrings));
+  while(na_Testing->untestedStringsCount){
+    NATestListItem* lastItem = na_Testing->untestedStrings->prev;
+    free(lastItem->data);
+    naDeallocateTestListItem(lastItem);
+    na_Testing->untestedStringsCount--;
+  }
+  free(na_Testing->untestedStrings);
 
   na_Testing->restrictionIt = NATEST_NULL;
   while(!naIsTestListEmpty(na_Testing->testRestriction)){
@@ -322,30 +337,28 @@ NATEST_DEF void naStopTesting(){
     close(na_Testing->logFile);
   #endif
 
-  naFree(na_Testing);
+  free(na_Testing);
   na_Testing = NATEST_NULL;
 }
 
 
 
 NATEST_DEF void naPrintUntested(void){
-  int stackCount = (int)naGetStackCount(&(na_Testing->untestedStrings));
-  if(!stackCount){
-    printf(NA_NL "No untested functionality." NA_NL);
+  if(!na_Testing->untestedStringsCount){
+    printf(NATEST_NL "No untested functionality." NATEST_NL);
   }else{
-    printf(NA_NL "Untested functionality (%d):" NA_NL, stackCount);
-    NAStackIterator iter = naMakeStackAccessor(&(na_Testing->untestedStrings));
-    while(naIterateStack(&iter)){
-      const NATestUTF8Char* string = naGetStackCurpConst(&iter);
-      printf("U %s" NA_NL, string);
+    printf(NATEST_NL "Untested functionality (%d):" NATEST_NL, (int)na_Testing->untestedStringsCount);
+    NATestListItem* cur = na_Testing->untestedStrings->next;
+    while(cur != na_Testing->untestedStrings){
+      const NATestUTF8Char* string = (const NATestUTF8Char*)cur->data;
+      printf("U %s" NATEST_NL, string);
     }
-    naClearStackIterator(&iter);
   }
 }
 
 
 
-NA_HDEF void na_UpdateTestParentLeaf(
+NATEST_HDEF void na_UpdateTestParentLeaf(
   NATestData* testData,
   NATestBool leafSuccess)
 {
@@ -366,27 +379,31 @@ NA_HDEF void na_UpdateTestParentLeaf(
 
 
 
-NA_HDEF void na_AddTest(const char* expr, int success, int lineNum){
+NATEST_HDEF void na_AddTest(const char* expr, int success, int lineNum){
   #if NA_DEBUG
     if(!na_Testing)
       naCrash("Testing not running. Use naStartTesting.");
   #endif
 
-  NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
+  NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  NATestListItem* newItem = naAllocateTestListItem(testData);
+  naAddTestListBefore(na_Testing->curTestData->childs, newItem);
+  na_Testing->curTestData->childsCount++;
+  
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   if(na_GetErrorCount() > 0){
     testData->success = NATEST_FALSE;
     na_UpdateTestParentLeaf(na_Testing->curTestData, NATEST_FALSE);
     printf("  ");
     if(testData->parent){na_PrintTestName(testData->parent);}
-    printf(" Line %d: %d errors occured in %s" NA_NL, lineNum, na_GetErrorCount(), expr);
+    printf(" Line %d: %d errors occured in %s" NATEST_NL, lineNum, na_GetErrorCount(), expr);
   }else{
     testData->success = (NATestBool)success;
     na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)success);
     if(!success){
       printf("  ");
       if(testData->parent){na_PrintTestName(testData->parent);}
-      printf(" Line %d: %s" NA_NL, lineNum, expr);
+      printf(" Line %d: %s" NATEST_NL, lineNum, expr);
     }
   }
 
@@ -395,20 +412,24 @@ NA_HDEF void na_AddTest(const char* expr, int success, int lineNum){
 
 
 
-NA_HDEF void na_AddTestError(const char* expr, int lineNum){
+NATEST_HDEF void na_AddTestError(const char* expr, int lineNum){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
   #endif
 
-  NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
+  NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  NATestListItem* newItem = naAllocateTestListItem(testData);
+  naAddTestListBefore(na_Testing->curTestData->childs, newItem);
+  na_Testing->curTestData->childsCount++;
+
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   testData->success = na_GetErrorCount() != 0;
   na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
   if(!testData->success){
     printf("  ");
     if(testData->parent){na_PrintTestName(testData->parent);}
-    printf(" Line %d: No Error raised in %s" NA_NL, lineNum, expr);
+    printf(" Line %d: No Error raised in %s" NATEST_NL, lineNum, expr);
   }
 
   na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
@@ -416,9 +437,9 @@ NA_HDEF void na_AddTestError(const char* expr, int lineNum){
 
 
 
-NA_HDEF void na_AddTestCrash(const char* expr, int lineNum){
-  NA_UNUSED(expr);
-  NA_UNUSED(lineNum);
+NATEST_HDEF void na_AddTestCrash(const char* expr, int lineNum){
+  NATEST_UNUSED(expr);
+  NATEST_UNUSED(lineNum);
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
@@ -434,13 +455,17 @@ NA_HDEF void na_AddTestCrash(const char* expr, int lineNum){
 
 
 
-NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
+NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
   #endif
 
-  NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
+  NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  NATestListItem* newItem = naAllocateTestListItem(testData);
+  naAddTestListBefore(na_Testing->curTestData->childs, newItem);
+  na_Testing->curTestData->childsCount++;
+
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
 
   // We create a parallel process and run this test application again, but
@@ -491,19 +516,19 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       if(!testData->success){
         printf("  ");
         if(testData->parent){na_PrintTestName(testData->parent);}
-        printf(" Line %d: No Crash happened in %s" NA_NL, lineNum, expr);
+        printf(" Line %d: No Crash happened in %s" NATEST_NL, lineNum, expr);
       }
 
     }else{
       printf("  ");
       if(testData->parent){na_PrintTestName(testData->parent);}
-      printf(" Line %d: CreateProcess failed in %s (System error code %d)." NA_NL, lineNum, expr, (int)GetLastError());
+      printf(" Line %d: CreateProcess failed in %s (System error code %d)." NATEST_NL, lineNum, expr, (int)GetLastError());
     }
 
-    naFree(systemCommandPath);
-    naDelete(modulePath);
-    naDelete(testPath);
-    naDelete(commandPath);
+    free(systemCommandPath);
+    free(modulePath);
+    free(testPath);
+    free(commandPath);
   
   #else
 
@@ -536,8 +561,8 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     }
 
     // Reserve 3 more slots for the args: testAppName -C and a final NULL
-    char** const argv = naMalloc((curTestPathStringIndex + 3) * sizeof(const char*));
-    argv[0] = naMalloc(strlen(modulePath) + 1);
+    char** const argv = malloc((curTestPathStringIndex + 3) * sizeof(const char*));
+    argv[0] = malloc(strlen(modulePath) + 1);
     argv[0][strlen(modulePath)] = '\0';
     memcpy(argv[0], modulePath, strlen(modulePath));
     argv[1] = "-C"; // DO NOT TURN -C OPTION OFF!!!
@@ -549,12 +574,12 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       NATestUTF8Char* pathItemString = naAllocTestStringWithFormat("%s", curPathItem);
       NATestUTF8Char* escapedPathItemString = naAllocTestStringCEscaped(pathItemString);
       NATestUTF8Char* encapsulatedPathItemString = naAllocTestStringWithFormat("\"%s\"", escapedPathItemString);
-      argv[i] = naMalloc(strlen(encapsulatedPathItemString) + 1);
+      argv[i] = malloc(strlen(encapsulatedPathItemString) + 1);
       argv[i][strlen(encapsulatedPathItemString)] = '\0';
       memcpy(argv[i], encapsulatedPathItemString, strlen(encapsulatedPathItemString));
-      naDelete(encapsulatedPathItemString);
-      naDelete(escapedPathItemString);
-      naDelete(pathItemString);
+      free(encapsulatedPathItemString);
+      free(escapedPathItemString);
+      free(pathItemString);
       ++i;
     }
     argv[curTestPathStringIndex + 2] = NATEST_NULL;
@@ -576,13 +601,13 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       int exitCode;
       waitpid(childPid, &exitCode, 0);
 
-      naFree(argv[0]);
+      free(argv[0]);
       i = 2;
       for(size_t curBackIndex = 0; curBackIndex < curTestPathStringIndex; curBackIndex++){
-        naFree(argv[i]);
+        free(argv[i]);
         ++i;
       }
-      naFree(argv);
+      free(argv);
 
       NATestBool hasExitedNormally = WIFEXITED(exitCode);
 //      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
@@ -602,62 +627,64 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
       if(!testData->success){
         printf("  ");
         if(testData->parent){na_PrintTestName(testData->parent);}
-        printf(" Line %d: No Crash happened in %s" NA_NL, lineNum, expr);
+        printf(" Line %d: No Crash happened in %s" NATEST_NL, lineNum, expr);
       }
     }
     
-    naDelete(modulePath);
+    free(modulePath);
 
   #endif
 }
 
 
 
-NA_HDEF void na_RegisterUntested(const char* text){
-  NATestUTF8Char** string = naPushStack(&(na_Testing->untestedStrings));
-  *string = naAllocTestStringWithFormat("%s", text);
+NATEST_HDEF void na_RegisterUntested(const char* text){
+  NATestUTF8Char* string = naAllocTestStringWithFormat("%s", text);
+  NATestListItem* newItem = naAllocateTestListItem(string);
+  naAddTestListBefore(na_Testing->untestedStrings, newItem);
+  na_Testing->untestedStringsCount++;
 }
 
 
 
-NA_HDEF NATestBool na_GetTestCaseRunning(){
+NATEST_HDEF NATestBool na_GetTestCaseRunning(){
   return na_Testing->testCaseRunning;
 }
 
 
 
-NA_HDEF void na_SetTestCaseRunning(NATestBool running){
+NATEST_HDEF void na_SetTestCaseRunning(NATestBool running){
   na_Testing->testCaseRunning = running;
 }
 
 
 
-NA_HDEF void na_IncErrorCount(void){
+NATEST_HDEF void na_IncErrorCount(void){
   na_Testing->errorCount++;
 }
 
 
 
-NA_HDEF void na_ResetErrorCount(void){
+NATEST_HDEF void na_ResetErrorCount(void){
   na_Testing->errorCount = 0;
 }
 
 
 
-NA_HDEF int na_GetErrorCount(void){
+NATEST_HDEF int na_GetErrorCount(void){
   return na_Testing->errorCount;
 }
 
 
 
-NA_HDEF NATestBool na_LetCrashTestCrash(){
+NATEST_HDEF NATestBool na_LetCrashTestCrash(){
   return na_Testing->letCrashTestsCrash;
 }
 
 
 
-NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
-  const NATestUTF8Char* allowedGroup = na_Testing->restrictionIt->string;
+NATEST_HDEF NATestBool na_ShallExecuteGroup(const char* name){
+  const NATestUTF8Char* allowedGroup = (NATestUTF8Char*)na_Testing->restrictionIt->data;
   NATestBool shallExecute =
     (memcmp(allowedGroup, "*", 1) == 0) ||
     (memcmp(allowedGroup, name, strlen(name)) == 0);
@@ -666,7 +693,10 @@ NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
     if(na_Testing->restrictionIt == na_Testing->testRestriction){
       // We arrived at the end of the list. Artificially add an asterix and
       // let the iterator point to this new, last entry.
-      NATestListItem* newItem = naAllocateTestListItem("*");
+      NATestUTF8Char* star = malloc(2);
+      star[0] = '*';
+      star[1] = '\0';
+      NATestListItem* newItem = naAllocateTestListItem(star);
       naAddTestListBefore(na_Testing->testRestriction, newItem);
       na_Testing->restrictionIt = na_Testing->testRestriction->prev;
     }
@@ -676,7 +706,7 @@ NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
 
 
 
-NA_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
+NATEST_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
@@ -685,7 +715,11 @@ NA_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
   NATestBool shallExecute = na_ShallExecuteGroup(name);
   if(shallExecute)
   {
-    NATestData* testData = naPushStack(&(na_Testing->curTestData->childs));
+    NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+    NATestListItem* newItem = naAllocateTestListItem(testData);
+    naAddTestListBefore(na_Testing->curTestData->childs, newItem);
+    na_Testing->curTestData->childsCount++;
+
     na_InitTestingData(testData, name, na_Testing->curTestData, lineNum);
     na_Testing->curTestData->childSuccessCount++;
     na_Testing->curTestData = testData;
@@ -695,7 +729,7 @@ NA_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
 
 
 
-NA_HDEF void na_StopTestGroup(){
+NATEST_HDEF void na_StopTestGroup(){
   #if NA_DEBUG
   if(!na_Testing)
     naCrash("Testing not running. Use naStartTesting.");
@@ -710,14 +744,14 @@ NA_HDEF void na_StopTestGroup(){
 
 
 
-NA_HDEF uint32 na_GetBenchmarkIn(){
+NATEST_HDEF uint32 na_GetBenchmarkIn(){
   na_Testing->curInIndex = (na_Testing->curInIndex + 1) & NA_TEST_INDEX_MASK;
   return na_Testing->in[na_Testing->curInIndex];
 }
 
 
 
-NA_HDEF double na_BenchmarkTime(){
+NATEST_HDEF double na_BenchmarkTime(){
   // Note: Reimplemented here because NADateTime uses int64 to compute.
   #if defined _WIN32
     FILETIME fileTime;
@@ -734,31 +768,31 @@ NA_HDEF double na_BenchmarkTime(){
 
 
 
-NA_HDEF double na_GetBenchmarkLimit(){
+NATEST_HDEF double na_GetBenchmarkLimit(){
   return na_Testing->timePerBenchmark;
 }
 
 
 
-NA_HDEF size_t na_GetBenchmarkTestSizeLimit(){
+NATEST_HDEF size_t na_GetBenchmarkTestSizeLimit(){
   return 30;  // in bits
 }
 
 
 
-NA_HDEF void na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum){
-  if(timeDiff < na_GetBenchmarkLimit() || testSize >= naPowerOf2s(na_GetBenchmarkTestSizeLimit())){
-      printf("Line %4d: Immeasurable   : %s" NA_NL, lineNum, exprString);
+NATEST_HDEF void na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum){
+  if(timeDiff < na_GetBenchmarkLimit() || testSize >= (1 << na_GetBenchmarkTestSizeLimit())){
+      printf("Line %4d: Immeasurable   : %s" NATEST_NL, lineNum, exprString);
   }else{
     double execsPerSec = testSize / timeDiff;
     if(execsPerSec > 1000000000.)
-      printf("Line %4d: %6.2f G : %s" NA_NL, lineNum, execsPerSec * .000000001, exprString);
+      printf("Line %4d: %6.2f G : %s" NATEST_NL, lineNum, execsPerSec * .000000001, exprString);
     else if(execsPerSec > 1000000.)
-      printf("Line %4d: %6.2f M : %s" NA_NL, lineNum, execsPerSec * .000001, exprString);
+      printf("Line %4d: %6.2f M : %s" NATEST_NL, lineNum, execsPerSec * .000001, exprString);
     else if(execsPerSec > 1000.)
-      printf("Line %4d: %6.2f k : %s" NA_NL, lineNum, execsPerSec * .001, exprString);
+      printf("Line %4d: %6.2f k : %s" NATEST_NL, lineNum, execsPerSec * .001, exprString);
     else
-      printf("Line %4d: %6.2f   : %s" NA_NL, lineNum, execsPerSec, exprString);
+      printf("Line %4d: %6.2f   : %s" NATEST_NL, lineNum, execsPerSec, exprString);
   }
 }
 
@@ -773,11 +807,11 @@ NATEST_DEF NATestBool naStartTesting(
   int argc,
   const char** argv)
 {
-  NA_UNUSED(rootName);
-  NA_UNUSED(timePerBenchmark);
-  NA_UNUSED(printAllGroups);
-  NA_UNUSED(argc);
-  NA_UNUSED(argv);
+  NATEST_UNUSED(rootName);
+  NATEST_UNUSED(timePerBenchmark);
+  NATEST_UNUSED(printAllGroups);
+  NATEST_UNUSED(argc);
+  NATEST_UNUSED(argv);
   #if NA_DEBUG
     na_TestError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
   #endif
