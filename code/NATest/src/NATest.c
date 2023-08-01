@@ -1,6 +1,7 @@
 
 #include "NATest.h"
 #include "NATestString.h"
+#include "NATestList.h"
 
 #if NA_TESTING_ENABLED == 1
 
@@ -21,7 +22,6 @@
 #endif
 
 #include "../../../../../code/NALib/src/NAStruct/NAStack.h"
-#include "../../../../../code/NALib/src/NAStruct/NAList.h"
 
 
 
@@ -54,8 +54,8 @@ struct NATesting {
   NATestBool testingStartSuccessful;
   int errorCount;
   NAStack untestedStrings;
-  NAList testRestriction;
-  NAListIterator restrictionIt;
+  NATestListItem* testRestriction;
+  NATestListItem* restrictionIt;
   int curInIndex;
   uint32 in[NA_TEST_INDEX_COUNT];
   NATestFile logFile;
@@ -212,7 +212,7 @@ NATEST_DEF NATestBool naStartTesting(
   }
 
   naInitStack(&(na_Testing->untestedStrings), sizeof(NATestUTF8Char*), 0, 0);
-  naInitList(&(na_Testing->testRestriction));
+  na_Testing->testRestriction = naAllocateTestListItem(NATEST_NULL);
 
   if(argc > 1){
     for(int i = 1; i < argc; ++i)
@@ -231,16 +231,17 @@ NATEST_DEF NATestBool naStartTesting(
           naDelete(argString);
           argString = newArgString;
         }
-        naAddListLastMutable(&(na_Testing->testRestriction), argString);
+        NATestListItem* newItem = naAllocateTestListItem(argString);
+        naAddTestListBefore(na_Testing->testRestriction, newItem);
       }
     }
   }
   
-  if(naIsListEmpty(&(na_Testing->testRestriction))){
-    naAddListLastMutable(&(na_Testing->testRestriction), naAllocTestStringWithFormat("*"));
+  if(naIsTestListEmpty(na_Testing->testRestriction)){
+    NATestListItem* newItem = naAllocateTestListItem("*");
+    naAddTestListBefore(na_Testing->testRestriction, newItem);
   }
-  na_Testing->restrictionIt = naMakeListAccessor(&(na_Testing->testRestriction));
-  naIterateList(&(na_Testing->restrictionIt));
+  na_Testing->restrictionIt = na_Testing->testRestriction->next;
 
   NATestUTF8Char* modulePath = na_NewTestApplicationPath();
   NATestUTF8Char* runPath = naAllocTestStringWithBasenameOfPath(modulePath);
@@ -309,9 +310,11 @@ NATEST_DEF void naStopTesting(){
   naForeachStackpMutable(&(na_Testing->untestedStrings), (NATestMutator)free);
   naClearStack(&(na_Testing->untestedStrings));
 
-  naClearListIterator(&(na_Testing->restrictionIt));
-  naForeachListMutable(&(na_Testing->testRestriction), (NATestMutator)free);
-  naClearList(&(na_Testing->testRestriction));
+  na_Testing->restrictionIt = NATEST_NULL;
+  while(!naIsTestListEmpty(na_Testing->testRestriction)){
+    naDeallocateTestListItem(na_Testing->testRestriction->next);
+  }
+  naDeallocateTestListItem(na_Testing->testRestriction);
 
   #if defined _WIN32
     CloseHandle(na_Testing->logFile);
@@ -387,7 +390,7 @@ NA_HDEF void na_AddTest(const char* expr, int success, int lineNum){
     }
   }
 
-  naIterateListBack(&(na_Testing->restrictionIt));
+  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -408,7 +411,7 @@ NA_HDEF void na_AddTestError(const char* expr, int lineNum){
     printf(" Line %d: No Error raised in %s" NA_NL, lineNum, expr);
   }
 
-  naIterateListBack(&(na_Testing->restrictionIt));
+  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -426,7 +429,7 @@ NA_HDEF void na_AddTestCrash(const char* expr, int lineNum){
   // process returns a successful return value and the calling process knows
   // that no crash occurred.
   
-  naIterateListBack(&(na_Testing->restrictionIt));
+  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -654,17 +657,18 @@ NA_HDEF NATestBool na_LetCrashTestCrash(){
 
 
 NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
-  const NATestUTF8Char* allowedGroup = naGetListCurConst(&(na_Testing->restrictionIt));
+  const NATestUTF8Char* allowedGroup = na_Testing->restrictionIt->string;
   NATestBool shallExecute =
     (memcmp(allowedGroup, "*", 1) == 0) ||
     (memcmp(allowedGroup, name, strlen(name)) == 0);
   if(shallExecute){
-    naIterateList(&(na_Testing->restrictionIt));
-    if(naIsListAtInitial(&(na_Testing->restrictionIt))){
+    na_Testing->restrictionIt = na_Testing->restrictionIt->next;
+    if(na_Testing->restrictionIt == na_Testing->testRestriction){
       // We arrived at the end of the list. Artificially add an asterix and
       // let the iterator point to this new, last entry.
-      naAddListLastConst(&(na_Testing->testRestriction), naAllocTestStringWithFormat("*"));
-      naIterateListBack(&(na_Testing->restrictionIt));
+      NATestListItem* newItem = naAllocateTestListItem("*");
+      naAddTestListBefore(na_Testing->testRestriction, newItem);
+      na_Testing->restrictionIt = na_Testing->testRestriction->prev;
     }
   }
   return shallExecute;
@@ -701,7 +705,7 @@ NA_HDEF void na_StopTestGroup(){
     na_PrintTestGroup(na_Testing->curTestData);
   }
   na_Testing->curTestData = na_Testing->curTestData->parent;
-  naIterateListBack(&(na_Testing->restrictionIt));
+  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
