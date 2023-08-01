@@ -1,5 +1,5 @@
-#ifndef NA_TESTING_INCLUDED
-#define NA_TESTING_INCLUDED
+#ifndef NA_TEST_INCLUDED
+#define NA_TEST_INCLUDED
 #ifdef __cplusplus
   extern "C"{
 #endif
@@ -75,7 +75,7 @@ NATEST_API void naPrintUntested(void);
 #ifdef __cplusplus
   }
 #endif
-#endif // NA_TESTING_INCLUDED
+#endif // NA_TEST_INCLUDED
 
 
 

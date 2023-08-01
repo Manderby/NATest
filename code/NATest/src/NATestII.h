@@ -1,6 +1,6 @@
 
-#ifndef NA_TESTING_II_INCLUDED
-#define NA_TESTING_II_INCLUDED
+#ifndef NA_TEST_II_INCLUDED
+#define NA_TEST_II_INCLUDED
 
 
 
@@ -180,7 +180,7 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
 
 
 
-#endif // NA_TESTING_II_INCLUDED
+#endif // NA_TEST_II_INCLUDED
 
 
 

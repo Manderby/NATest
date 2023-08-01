@@ -1,5 +1,6 @@
 
 #include "NATest.h"
+#include "NATestString.h"
 
 #if NA_TESTING_ENABLED == 1
 
@@ -13,15 +14,14 @@
   #include <errno.h>
   #include <libproc.h>
   #include <signal.h>
+  #include <sys/fcntl.h>
   #include <sys/sysctl.h>
   #include <sys/time.h>
   #include <unistd.h>
 #endif
 
-#include "../../../../../code/NALib/src/NALib.h"
-//#include "../../../NAStruct/NAStack.h"
-//#include "../../../NAStruct/NAList.h"
-//#include "../../NAString.h"
+#include "../../../../../code/NALib/src/NAStruct/NAStack.h"
+#include "../../../../../code/NALib/src/NAStruct/NAList.h"
 
 
 
@@ -58,19 +58,19 @@ struct NATesting {
   NAListIterator restrictionIt;
   int curInIndex;
   uint32 in[NA_TEST_INDEX_COUNT];
-  #if defined _WIN32
-    HANDLE logFile;
-  #else
-    NAFile* logFile;
-  #endif
+  NATestFile logFile;
 };
 
 NATesting* na_Testing = NATEST_NULL;
 
 
 
-NATEST_HDEF NAString* na_NewTestApplicationPath(void){
-  NAString* exePath;
+void na_TestError(NATestUTF8Char* message){
+  fprintf(stderr, "Testing Error: %s\n", message);
+}
+
+NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
+  NATestUTF8Char* exePath;
   #if defined _WIN32
     TCHAR modulePath[MAX_PATH];
     GetModuleFileName(NULL, modulePath, MAX_PATH);
@@ -79,7 +79,7 @@ NATEST_HDEF NAString* na_NewTestApplicationPath(void){
     char pathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t pid = (pid_t)getpid();
     proc_pidpath (pid, pathBuf, sizeof(pathBuf));
-    exePath = naNewStringWithFormat("%s", pathBuf);
+    exePath = naAllocTestStringWithFormat("%s", pathBuf);
   #endif
   // This is how Linux would do it:
 //    char dest[PATH_MAX];
@@ -115,19 +115,19 @@ NATEST_HIDEF void na_ClearTestingData(NATestData* testData){
 
 
 
-NATEST_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
-  NAString* str = naNewStringWithFormat("%s", testData->name);
+NATEST_HDEF NATestUTF8Char* na_NewTestPath(NATestData* testData, NATestBool escape){
+  NATestUTF8Char* str = naAllocTestStringWithFormat("%s", testData->name);
   if(escape)
   {
-    NAString* escapeName = naNewStringCEscaped(str);
+    NATestUTF8Char* escapeName = naAllocTestStringCEscaped(str);
     naDelete(str);
-    str = naNewStringWithFormat("\"%s\"", naGetStringUTF8Pointer(escapeName));
+    str = naAllocTestStringWithFormat("\"%s\"", escapeName);
     naDelete(escapeName);
   }
 
   if(testData->parent){
-    NAString* parentName = na_NewTestPath(testData->parent, escape);
-    NAString* combinedName = naNewStringWithFormat("%s %s", naGetStringUTF8Pointer(parentName), naGetStringUTF8Pointer(str));
+    NATestUTF8Char* parentName = na_NewTestPath(testData->parent, escape);
+    NATestUTF8Char* combinedName = naAllocTestStringWithFormat("%s %s", parentName, str);
     naDelete(parentName);
     naDelete(str);
     str = combinedName;
@@ -138,8 +138,8 @@ NATEST_HDEF NAString* na_NewTestPath(NATestData* testData, NATestBool escape){
 
 
 NATEST_HIDEF void na_PrintTestName(NATestData* testData){
-  NAString* testPath = na_NewTestPath(testData, NATEST_FALSE);
-  printf("%s", naGetStringUTF8Pointer(testPath));
+  NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_FALSE);
+  printf("%s", testPath);
   naDelete(testPath);
 }
 
@@ -184,7 +184,7 @@ NATEST_DEF NATestBool naStartTesting(
 {
   #if NA_DEBUG
     if(na_Testing)
-      naError("Testing already running.");
+      na_TestError("Testing already running.");
   #endif
 
 //  if(argc > 1){
@@ -211,7 +211,7 @@ NATEST_DEF NATestBool naStartTesting(
     na_Testing->in[na_Testing->curInIndex] = ((uint32)rand() << 20) ^ ((uint32)rand() << 10) ^ ((uint32)rand());
   }
 
-  naInitStack(&(na_Testing->untestedStrings), sizeof(NAString*), 0, 0);
+  naInitStack(&(na_Testing->untestedStrings), sizeof(NATestUTF8Char*), 0, 0);
   naInitList(&(na_Testing->testRestriction));
 
   if(argc > 1){
@@ -224,9 +224,9 @@ NATEST_DEF NATestBool naStartTesting(
           printf("Unrecognized executable argument: %c" NA_NL, argv[i][1]);
         }
       }else{
-        NAString* argString = naNewStringWithFormat("%s", argv[i]);
-        if(naGetStringChar(argString, 0) == '\"'){
-          NAString* newArgString = naNewStringExtraction(argString, 1, -2);
+        NATestUTF8Char* argString = naAllocTestStringWithFormat("%s", argv[i]);
+        if(argString[0] == '\"'){
+          NATestUTF8Char* newArgString = naAllocTestStringDequote(argString);
 //          printf("Quotes detected: %s -> %s\n", naGetStringUTF8Pointer(argString), naGetStringUTF8Pointer(newArgString));
           naDelete(argString);
           argString = newArgString;
@@ -237,14 +237,14 @@ NATEST_DEF NATestBool naStartTesting(
   }
   
   if(naIsListEmpty(&(na_Testing->testRestriction))){
-    naAddListLastMutable(&(na_Testing->testRestriction), naNewStringWithFormat("*"));
+    naAddListLastMutable(&(na_Testing->testRestriction), naAllocTestStringWithFormat("*"));
   }
   na_Testing->restrictionIt = naMakeListAccessor(&(na_Testing->testRestriction));
   naIterateList(&(na_Testing->restrictionIt));
 
-  NAString* modulePath = na_NewTestApplicationPath();
-  NAString* runPath = naNewStringWithBasenameOfPath(modulePath);
-  NAString* crashLogPath = naNewStringWithFormat("%s_latestCrash.log", naGetStringUTF8Pointer(runPath));
+  NATestUTF8Char* modulePath = na_NewTestApplicationPath();
+  NATestUTF8Char* runPath = naAllocTestStringWithBasenameOfPath(modulePath);
+  NATestUTF8Char* crashLogPath = naAllocTestStringWithFormat("%s_latestCrash.log", runPath);
 
   #if defined _WIN32
     SECURITY_ATTRIBUTES securityAttributes;
@@ -252,21 +252,29 @@ NATEST_DEF NATestBool naStartTesting(
       securityAttributes.lpSecurityDescriptor = NULL;
       securityAttributes.bInheritHandle = TRUE;
     TCHAR* systemCrashLogPath = naAllocSystemStringWithUTF8String(naGetStringUTF8Pointer(crashLogPath));
-    na_Testing->logFile = CreateFile(systemCrashLogPath,
-          FILE_APPEND_DATA,
-          FILE_SHARE_WRITE | FILE_SHARE_READ,
-          &securityAttributes,
-          CREATE_ALWAYS,
-          FILE_ATTRIBUTE_NORMAL,
-          NULL );
+    na_Testing->logFile = CreateFile(
+      systemCrashLogPath,
+      FILE_APPEND_DATA,
+      FILE_SHARE_WRITE | FILE_SHARE_READ,
+      &securityAttributes,
+      CREATE_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,
+      NULL );
     naFree(systemCrashLogPath);
   #else
-    na_Testing->logFile = naCreateFileWritingPath(naGetStringUTF8Pointer(crashLogPath), NA_FILEMODE_DEFAULT);
+    na_Testing->logFile = open(
+      crashLogPath,
+      NATEST_FILE_OPEN_FLAGS_WRITE,
+      NATEST_FILEMODE_DEFAULT);
+    #if NA_DEBUG
+      if(na_Testing->logFile < 0)
+        na_TestError("Could not create file.");
+    #endif
   #endif
 
-  naDelete(crashLogPath);
-  naDelete(runPath);
-  naDelete(modulePath);
+  free(crashLogPath);
+  free(runPath);
+  free(modulePath);
 
   na_Testing->testingStartSuccessful = na_ShallExecuteGroup(rootName);
   return na_Testing->testingStartSuccessful;
@@ -298,17 +306,17 @@ NATEST_DEF void naStopTesting(){
 
   na_ClearTestingData(na_Testing->rootTestData);
   naFree(na_Testing->rootTestData);
-  naForeachStackpMutable(&(na_Testing->untestedStrings), (NATestMutator)naDelete);
+  naForeachStackpMutable(&(na_Testing->untestedStrings), (NATestMutator)free);
   naClearStack(&(na_Testing->untestedStrings));
 
   naClearListIterator(&(na_Testing->restrictionIt));
-  naForeachListMutable(&(na_Testing->testRestriction), (NATestMutator)naDelete);
+  naForeachListMutable(&(na_Testing->testRestriction), (NATestMutator)free);
   naClearList(&(na_Testing->testRestriction));
 
   #if defined _WIN32
     CloseHandle(na_Testing->logFile);
   #else
-    naReleaseFile(na_Testing->logFile);
+    close(na_Testing->logFile);
   #endif
 
   naFree(na_Testing);
@@ -325,8 +333,8 @@ NATEST_DEF void naPrintUntested(void){
     printf(NA_NL "Untested functionality (%d):" NA_NL, stackCount);
     NAStackIterator iter = naMakeStackAccessor(&(na_Testing->untestedStrings));
     while(naIterateStack(&iter)){
-      const NAString* string = naGetStackCurpConst(&iter);
-      printf("U %s" NA_NL, naGetStringUTF8Pointer(string));
+      const NATestUTF8Char* string = naGetStackCurpConst(&iter);
+      printf("U %s" NA_NL, string);
     }
     naClearStackIterator(&iter);
   }
@@ -447,11 +455,11 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     startupInfo.hStdOutput = na_Testing->logFile;
     startupInfo.hStdError = na_Testing->logFile;
 
-    NAString* modulePath = na_NewTestApplicationPath();
-    NAString* testPath = na_NewTestPath(testData, NATEST_TRUE);
+    NATestUTF8Char* modulePath = na_NewTestApplicationPath();
+    NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_TRUE);
     
     // DO NOT TURN -C OPTION OFF!!!
-    NAString* commandPath = naNewStringWithFormat("\"%s\" -C %s", naGetStringUTF8Pointer(modulePath), naGetStringUTF8Pointer(testPath));
+    NATestUTF8Char* commandPath = naNewStringWithFormat("\"%s\" -C %s", naGetStringUTF8Pointer(modulePath), naGetStringUTF8Pointer(testPath));
     TCHAR* systemCommandPath = naAllocSystemStringWithUTF8String(naGetStringUTF8Pointer(commandPath));
 
     BOOL success = CreateProcess(
@@ -499,12 +507,12 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
     // Set the logFile as the output for stdout and stderr
     int oldStdOut = dup(1);
     close(1); //Close stdout
-    dup(na_Testing->logFile->desc);
+    dup(na_Testing->logFile);
     int oldStdErr = dup(2);
     close(2); //Close stderr
-    dup(na_Testing->logFile->desc);
+    dup(na_Testing->logFile);
 
-    NAString* modulePath = na_NewTestApplicationPath();
+    NATestUTF8Char* modulePath = na_NewTestApplicationPath();
 
     #define NA_MAX_TEST_INPUT_STRINGS 100
     const char* testPathStrings[NA_MAX_TEST_INPUT_STRINGS];
@@ -526,21 +534,21 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
 
     // Reserve 3 more slots for the args: testAppName -C and a final NULL
     char** const argv = naMalloc((curTestPathStringIndex + 3) * sizeof(const char*));
-    argv[0] = naMalloc(naGetStringByteSize(modulePath) + 1);
-    argv[0][naGetStringByteSize(modulePath)] = '\0';
-    naWriteBufferToData(naGetStringBufferMutable(modulePath), argv[0]);
+    argv[0] = naMalloc(strlen(modulePath) + 1);
+    argv[0][strlen(modulePath)] = '\0';
+    memcpy(argv[0], modulePath, strlen(modulePath));
     argv[1] = "-C"; // DO NOT TURN -C OPTION OFF!!!
     int i = 2;
 
     for(size_t curBackIndex = 0; curBackIndex < curTestPathStringIndex; curBackIndex++)
     {
       const char* curPathItem = testPathStrings[curTestPathStringIndex - curBackIndex - 1];
-      NAString* pathItemString = naNewStringWithFormat("%s", curPathItem);
-      NAString* escapedPathItemString = naNewStringCEscaped(pathItemString);
-      NAString* encapsulatedPathItemString = naNewStringWithFormat("\"%s\"", naGetStringUTF8Pointer(escapedPathItemString));
-      argv[i] = naMalloc(naGetStringByteSize(encapsulatedPathItemString) + 1);
-      naWriteBufferToData(naGetStringBufferMutable(encapsulatedPathItemString), argv[i]);
-      argv[i][naGetStringByteSize(encapsulatedPathItemString)] = '\0';
+      NATestUTF8Char* pathItemString = naAllocTestStringWithFormat("%s", curPathItem);
+      NATestUTF8Char* escapedPathItemString = naAllocTestStringCEscaped(pathItemString);
+      NATestUTF8Char* encapsulatedPathItemString = naAllocTestStringWithFormat("\"%s\"", escapedPathItemString);
+      argv[i] = naMalloc(strlen(encapsulatedPathItemString) + 1);
+      argv[i][strlen(encapsulatedPathItemString)] = '\0';
+      memcpy(argv[i], encapsulatedPathItemString, strlen(encapsulatedPathItemString));
       naDelete(encapsulatedPathItemString);
       naDelete(escapedPathItemString);
       naDelete(pathItemString);
@@ -603,8 +611,8 @@ NA_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
 
 
 NA_HDEF void na_RegisterUntested(const char* text){
-  NAString** string = naPushStack(&(na_Testing->untestedStrings));
-  *string = naNewStringWithFormat("%s", text);
+  NATestUTF8Char** string = naPushStack(&(na_Testing->untestedStrings));
+  *string = naAllocTestStringWithFormat("%s", text);
 }
 
 
@@ -646,16 +654,16 @@ NA_HDEF NATestBool na_LetCrashTestCrash(){
 
 
 NA_HDEF NATestBool na_ShallExecuteGroup(const char* name){
-  const NAString* allowedGroup = naGetListCurConst(&(na_Testing->restrictionIt));
+  const NATestUTF8Char* allowedGroup = naGetListCurConst(&(na_Testing->restrictionIt));
   NATestBool shallExecute =
-    naEqualStringToUTF8CString(allowedGroup, "*", NATEST_TRUE) ||
-    naEqualStringToUTF8CString(allowedGroup, name, NATEST_TRUE);
+    (memcmp(allowedGroup, "*", 1) == 0) ||
+    (memcmp(allowedGroup, name, strlen(name)) == 0);
   if(shallExecute){
     naIterateList(&(na_Testing->restrictionIt));
     if(naIsListAtInitial(&(na_Testing->restrictionIt))){
       // We arrived at the end of the list. Artificially add an asterix and
       // let the iterator point to this new, last entry.
-      naAddListLastConst(&(na_Testing->testRestriction), naNewStringWithFormat("*"));
+      naAddListLastConst(&(na_Testing->testRestriction), naAllocTestStringWithFormat("*"));
       naIterateListBack(&(na_Testing->restrictionIt));
     }
   }
@@ -767,7 +775,7 @@ NATEST_DEF NATestBool naStartTesting(
   NA_UNUSED(argc);
   NA_UNUSED(argv);
   #if NA_DEBUG
-    naError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
+    na_TestError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
   #endif
   return NATEST_FALSE;
 }
@@ -776,7 +784,7 @@ NATEST_DEF NATestBool naStartTesting(
 
 NATEST_DEF void naStopTesting(){
   #if NA_DEBUG
-    naError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
+    na_TestError("Testing is not enabled. Go look for NA_TESTING_ENABLED");
   #endif
 }
 

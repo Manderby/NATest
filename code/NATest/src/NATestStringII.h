@@ -1,4 +1,7 @@
 
+// This is the inline implementation (II) file of NATestString.
+// Do not include this file directly!
+
 #undef naTestPriux64
 #undef naTestPriix64
 #undef naTestPriux128

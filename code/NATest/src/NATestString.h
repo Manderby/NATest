@@ -16,6 +16,12 @@ NATEST_API NATestUTF8Char* naTestPriix32 (int32  value);
 #define naTestPriix256(value)
 
 
+NATEST_API NATestUTF8Char* naAllocTestStringEmpty(void);
+NATEST_API NATestUTF8Char* naAllocTestStringWithFormat(const NATestUTF8Char* format, ...);
+NATEST_API NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* inputString);
+NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputString);
+NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8Char* filePath);
+
 
 #include "NATestStringII.h"
 

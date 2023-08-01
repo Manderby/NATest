@@ -1,6 +1,6 @@
 
-#ifndef NA_TESTING_ENVIRONMENT_INCLUDED
-#define NA_TESTING_ENVIRONMENT_INCLUDED
+#ifndef NA_TEST_ENVIRONMENT_INCLUDED
+#define NA_TEST_ENVIRONMENT_INCLUDED
 
 // Do not include this file directly!
 // This is the base include file of NATest which covers all needed datatypes
@@ -54,11 +54,17 @@
   #define NATEST_LINKER_NO_EXPORT
   #define NATEST_LINKER_EXPORT      __declspec(dllexport)
   #define NATEST_NL NATEST_NL_WIN
+  typedef HANDLE NATestFile;
+  #define NATEST_FILEMODE_DEFAULT (_S_IREAD | _S_IWRITE)
+  #define NATEST_FILE_OPEN_FLAGS_WRITE (O_WRONLY | O_CREAT | O_TRUNC | O_BINARY)
 #else
   #define NATEST_INLINE             inline
   #define NATEST_LINKER_NO_EXPORT   __attribute__ ((visibility("hidden")))
   #define NATEST_LINKER_EXPORT      __attribute__ ((visibility("default")))
   #define NATEST_NL NATEST_NL_UNIX
+  typedef int NATestFile;
+  #define NATEST_FILEMODE_DEFAULT 0644
+  #define NATEST_FILE_OPEN_FLAGS_WRITE (O_WRONLY | O_CREAT | O_TRUNC)
 #endif
 
 
@@ -109,7 +115,7 @@ typedef uint32_t uint32;
 
 
 
-#endif // NA_TESTING_ENVIRONMENT_INCLUDED
+#endif // NA_TEST_ENVIRONMENT_INCLUDED
 
 
 

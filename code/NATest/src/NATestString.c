@@ -51,6 +51,144 @@ NATEST_HDEF NATestUTF8Char* na_AllocSprintf(const NATestUTF8Char* format, ...){
 
 
 
+NATEST_DEF NATestUTF8Char* naAllocTestStringEmpty(){
+  NATestUTF8Char* string = malloc(1);
+  string[0] = '\0';
+  return string;
+}
+
+
+
+NATEST_HDEF NATestUTF8Char* na_AllocTestStringWithArguments(const NATestUTF8Char* format, va_list argumentList){
+  NATestUTF8Char* string;
+  va_list argumentList2;
+  va_list argumentList3;
+  va_copy(argumentList2, argumentList);
+  va_copy(argumentList3, argumentList);
+  size_t stringLen = na_VarargStringLength(format, argumentList2);
+  if(stringLen){
+    NATestUTF8Char* stringBuf = malloc(stringLen + 1);
+    na_Vsnprintf(stringBuf, stringLen + 1, format, argumentList3);
+    stringBuf[stringLen] = '\0';
+    string = stringBuf;
+  }else{
+    string = naAllocTestStringEmpty();
+  }
+  va_end(argumentList2);
+  va_end(argumentList3);
+  #if NA_STRING_ALWAYS_CACHE == 1
+    naGetStringUTF8Pointer(string);
+  #endif
+  return string;
+}
+
+
+
+NATEST_DEF NATestUTF8Char* naAllocTestStringWithFormat(const NATestUTF8Char* format, ...){
+  NATestUTF8Char* string;
+  va_list argumentList;
+  va_start(argumentList, format);
+  string = na_AllocTestStringWithArguments(format, argumentList);
+  va_end(argumentList);
+  #if NA_STRING_ALWAYS_CACHE == 1
+    naGetStringUTF8Pointer(string);
+  #endif
+  return string;
+}
+
+
+
+// Returns \0 if the character does not need to be escaped. Otherwise returns
+// the character excape sequence (Withoutt the \ character).
+NATEST_HDEF NATestUTF8Char* na_GetCEscapedChar(NATestUTF8Char inputChar, size_t* charCount){
+  switch(inputChar){
+  case '\a': *charCount = 1; return "a";
+  case '\b': *charCount = 1; return "b";
+  case '\f': *charCount = 1; return "f";
+  case '\n': *charCount = 1; return "n";
+  case '\r': *charCount = 1; return "r";
+  case '\t': *charCount = 1; return "t";
+  case '\v': *charCount = 1; return "v";
+  case '\\': *charCount = 1; return "\\";
+  case '\'': *charCount = 1; return "\'";
+  case '\"': *charCount = 1; return "\"";
+  case '\?': *charCount = 1; return "?";
+  // todo: Add more escapes
+  default: *charCount = 0; return "";
+  }
+}
+
+
+NATEST_DEF NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* inputString){
+  size_t len = strlen(inputString);
+  if(!len){
+    return naAllocTestStringEmpty();
+  }
+  
+  // First, count how many characters are needed.
+  size_t escapeCount = 0;
+  for(size_t i = 0; i < len; ++i){
+    size_t charCount = 0;
+    na_GetCEscapedChar(inputString[i], &charCount);
+    escapeCount += charCount;
+  }
+  
+  NATestUTF8Char* outString = malloc(len + escapeCount + 1);
+    outString[len + escapeCount] = '\0';
+
+  // Fill the new buffer up with the correct bytes.
+  size_t outIndex = 0;
+  for(size_t i = 0; i < len; ++i){
+    size_t charCount = 0;
+    NATestUTF8Char* escape = na_GetCEscapedChar(inputString[i], &charCount);
+    if(charCount){
+      outString[outIndex] = '\\';
+      strncpy(&outString[outIndex + 1], escape, charCount);
+    }else{
+      outString[outIndex] = inputString[i];
+    }
+    outIndex += 1 + charCount;
+  }
+
+  return outString;
+}
+
+
+
+NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputString){
+  size_t len = strlen(inputString);
+  NATestUTF8Char* outString = malloc(len - 2 + 1);
+    outString[len - 2] = '\0';
+
+  strncpy(outString, &inputString[1], len - 2);
+  return outString;
+}
+
+
+
+NATEST_DEF NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8Char* filePath){
+  size_t originalLen = strlen(filePath);
+  size_t len = originalLen;
+  
+  while(len){
+    if(filePath[len - 1] == '.'){ break; }
+    len = len - 1;
+  }
+
+  if(!len){len = originalLen;}
+  if(!len){
+    return naAllocTestStringEmpty();
+  }
+  
+  NATestUTF8Char* outString = malloc(len + 1);
+  outString[len] = '\0';
+  memcpy(outString, filePath, len);
+
+  return outString;
+}
+
+
+
 NATEST_DEF NATestUTF8Char* naTestPriux8(uint8 value){
   return na_AllocSprintf("%02x", (int)(value & NATEST_MAX_u8));
 }
