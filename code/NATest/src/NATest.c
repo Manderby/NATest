@@ -1,5 +1,5 @@
 
-#include "NATesting.h"
+#include "NATest.h"
 
 #if NA_TESTING_ENABLED == 1
 

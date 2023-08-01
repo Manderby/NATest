@@ -1,8 +1,13 @@
 #ifndef NA_TESTING_INCLUDED
 #define NA_TESTING_INCLUDED
+#ifdef __cplusplus
+  extern "C"{
+#endif
 
 // All necessary includes and definitions.
-#include "NATestingEnvironment.h"
+#include "NATestEnvironment.h"
+// Also include the macro printouts for convenience.
+#include "NAMacroPrintout.h"
 
 
 
@@ -63,10 +68,13 @@ NATEST_API void naPrintUntested(void);
 
 
 // Inline implementations are in a separate file:
-#include "NATestingII.h"
+#include "NATestII.h"
 
 
 
+#ifdef __cplusplus
+  }
+#endif
 #endif // NA_TESTING_INCLUDED
 
 
