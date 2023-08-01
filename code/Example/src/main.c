@@ -6,6 +6,30 @@ void untestedThings(void){
   naUntested("Test buffer overflows");
 }
 
+void simpleThings(void){
+  // naTest tests whether the given expression evaluates to true.
+  naTest(1 == 1);
+  naTest(1 == 0);
+  naTest(4 < 6);
+  naTest(4 > 6);
+}
+
+void functionWithoutError(void){
+  // do nothing
+}
+
+void functionWithError(void){
+  // This simulates an error.
+  naIncErrorCount();
+}
+
+void buggyThings(void){
+  naTestVoid(functionWithoutError());
+  naTestVoid(functionWithError());
+  naTestError(functionWithoutError());
+  naTestError(functionWithError());
+}
+
 int main(int argc, const char **argv){
 
   // Start the testing environment.
@@ -21,9 +45,12 @@ int main(int argc, const char **argv){
     exit(1);
   }
 
-  naTestFunction(untestedThings);
+  naTestFunction(simpleThings);
+  naTestFunction(buggyThings);
 
-  naPrintUntested();
+//  naTestFunction(untestedThings);
+//  naPrintUntested();
+
   naStopTesting();
 
   return 0;

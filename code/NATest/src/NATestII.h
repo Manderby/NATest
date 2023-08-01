@@ -28,7 +28,6 @@ NATEST_HAPI void       na_StopTestGroup(void);
 NATEST_HAPI void       na_RegisterUntested(const char* text);
 NATEST_HAPI NATestBool na_GetTestCaseRunning(void);
 NATEST_HAPI void       na_SetTestCaseRunning(NATestBool running);
-NATEST_HAPI void       na_IncErrorCount(void);
 NATEST_HAPI void       na_ResetErrorCount(void);
 NATEST_HAPI int        na_GetErrorCount(void);
 NATEST_HDEF NATestBool na_LetCrashTestCrash(void);
@@ -41,22 +40,19 @@ NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
 NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum);
 
 
+void na_TestEmitError(NATestUTF8Char* message);
+void na_TestEmitCrash(NATestUTF8Char* message);
+
 
 // Starting and stopping tests
-#if NA_DEBUG
-  #define NA_START_TEST_CASE\
-    if(na_GetTestCaseRunning())\
-      naError("A test case is already running. This might lead to bad test results.");\
-    na_SetTestCaseRunning(NA_TRUE);\
-    na_ResetErrorCount();
-#else
-  #define NA_START_TEST_CASE\
-    na_SetTestCaseRunning(NA_TRUE);\
-    na_ResetErrorCount();
-#endif
+#define NA_START_TEST_CASE\
+  if(na_GetTestCaseRunning())\
+    na_TestEmitError("A test case is already running. This might lead to bad test results.");\
+  na_SetTestCaseRunning(NATEST_TRUE);\
+  na_ResetErrorCount();
 
 #define NA_STOP_TEST_CASE\
-  na_SetTestCaseRunning(NA_FALSE);
+  na_SetTestCaseRunning(NATEST_FALSE);
 
 
 
@@ -74,36 +70,30 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
     NA_START_TEST_CASE\
     expr;\
     NA_STOP_TEST_CASE\
-    na_AddTest(#expr, NA_TRUE, __LINE__);\
+    na_AddTest(#expr, NATEST_TRUE, __LINE__);\
   }
   
   
 
-// Testing for errors and crashes. Only useful when NA_DEBUG is 1.
-#if NA_DEBUG
-  #define naTestError(expr)\
-    if(na_ShallExecuteGroup(#expr)){\
+#define naTestError(expr)\
+  if(na_ShallExecuteGroup(#expr)){\
+    NA_START_TEST_CASE\
+    { expr; }\
+    NA_STOP_TEST_CASE\
+    na_AddTestError(#expr, __LINE__);\
+  }
+
+#define naTestCrash(expr)\
+  if(na_ShallExecuteGroup(#expr)){\
+    if(na_LetCrashTestCrash()){\
       NA_START_TEST_CASE\
       { expr; }\
       NA_STOP_TEST_CASE\
-      na_AddTestError(#expr, __LINE__);\
-    }
-
-  #define naTestCrash(expr)\
-    if(na_ShallExecuteGroup(#expr)){\
-      if(na_LetCrashTestCrash()){\
-        NA_START_TEST_CASE\
-        { expr; }\
-        NA_STOP_TEST_CASE\
-        na_AddTestCrash(#expr, __LINE__);\
-      }else{\
-        na_ExecuteCrashProcess(#expr, __LINE__);\
-      }\
-    }
-#else
-  #define naTestError(expr)
-  #define naTestCrash(expr)
-#endif
+      na_AddTestCrash(#expr, __LINE__);\
+    }else{\
+      na_ExecuteCrashProcess(#expr, __LINE__);\
+    }\
+  }
 
 
 

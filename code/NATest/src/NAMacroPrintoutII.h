@@ -32,9 +32,9 @@ NATEST_HAPI void na_PrintMacroIntYesNo(const NATestUTF8Char* macroString, int va
 NATEST_HAPI void na_PrintMacroEnum(const NATestUTF8Char* macroString, int value, const NATestUTF8Char** strings, int enumCount);
 
 #define naPrintMacro(macro)\
-  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NA_TRUE)
+  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NATEST_TRUE)
 #define naPrintMacroDefined(macro)\
-  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NA_FALSE)
+  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NATEST_FALSE)
 #define naPrintMacroInt(macro)\
   na_PrintMacroInt(#macro, (int)macro)
 #define naPrintMacroIntSpecial(macro, specialValue, specialString)\

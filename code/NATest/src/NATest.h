@@ -33,13 +33,17 @@ NATEST_API void naStopTesting(void);
 // Prints a list of all strings added by calling naUntested.
 NATEST_API void naPrintUntested(void);
 
+// Increments the internal error count. Used for naTestVoid and naTestError.
+NATEST_API void naIncErrorCount(void);
+
 // Tests successfully if the given expression evaluates to true.
 #define naTest(expr)
 
-// Simply executes the given expression but keeps track of any naError calls.
+// Simply executes the given expression but keeps track of any errors. See
+// naIncErrorCount.
 #define naTestVoid(expr)
 
-// Tests successfully if one or more naError calls happen.
+// Tests successfully if one or more naIncErrorCount calls happen.
 #define naTestError(expr)
 
 // Tests successfully if the expression would crash the application.

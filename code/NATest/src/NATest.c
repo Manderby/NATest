@@ -63,8 +63,13 @@ NATesting* na_Testing = NATEST_NULL;
 
 
 
-void na_TestError(NATestUTF8Char* message){
+void na_TestEmitError(NATestUTF8Char* message){
   fprintf(stderr, "Testing Error: %s\n", message);
+}
+void na_TestEmitCrash(NATestUTF8Char* message){
+  fprintf(stderr, "Critical Testing Error: %s\n", message);
+  fprintf(stderr, "Crashing the application deliberatly...\n");
+  exit(1);
 }
 
 NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
@@ -186,10 +191,8 @@ NATEST_DEF NATestBool naStartTesting(
   int argc,
   const char** argv)
 {
-  #if NA_DEBUG
-    if(na_Testing)
-      na_TestError("Testing already running.");
-  #endif
+  if(na_Testing)
+    na_TestEmitError("Testing already running.");
 
 //  if(argc > 1){
 //    printf("Runnging tests with args:" NATEST_NL);
@@ -275,10 +278,9 @@ NATEST_DEF NATestBool naStartTesting(
       crashLogPath,
       NATEST_FILE_OPEN_FLAGS_WRITE,
       NATEST_FILEMODE_DEFAULT);
-    #if NA_DEBUG
-      if(na_Testing->logFile < 0)
-        na_TestError("Could not create file.");
-    #endif
+
+    if(na_Testing->logFile < 0)
+      na_TestEmitError("Could not create file.");
   #endif
 
   free(crashLogPath);
@@ -292,12 +294,11 @@ NATEST_DEF NATestBool naStartTesting(
 
 
 NATEST_DEF void naStopTesting(){
-  #if NA_DEBUG
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
-  #endif
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   na_StopTestGroup();
+  printf(NATEST_NL);
 
   if(na_Testing->testingStartSuccessful){
     if(na_Testing->rootTestData->totalLeafCount == 0){
@@ -353,6 +354,7 @@ NATEST_DEF void naPrintUntested(void){
       cur = cur->next;
     }
   }
+  printf(NATEST_NL);
 }
 
 
@@ -379,10 +381,8 @@ NATEST_HDEF void na_UpdateTestParentLeaf(
 
 
 NATEST_HDEF void na_AddTest(const char* expr, int success, int lineNum){
-  #if NA_DEBUG
-    if(!na_Testing)
-      naCrash("Testing not running. Use naStartTesting.");
-  #endif
+  if(!na_Testing)
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
   NATestListItem* newItem = naAllocateTestListItem(testData);
@@ -412,9 +412,9 @@ NATEST_HDEF void na_AddTest(const char* expr, int success, int lineNum){
 
 
 NATEST_HDEF void na_AddTestError(const char* expr, int lineNum){
-  #if NA_DEBUG
+  #ifndef NDEBUG
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
   #endif
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
@@ -439,10 +439,9 @@ NATEST_HDEF void na_AddTestError(const char* expr, int lineNum){
 NATEST_HDEF void na_AddTestCrash(const char* expr, int lineNum){
   NATEST_UNUSED(expr);
   NATEST_UNUSED(lineNum);
-  #if NA_DEBUG
+
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
-  #endif
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   // Nothing special to be done here. This method is only back iterating in
   // order to finish the application successfully. If that happens, the
@@ -455,10 +454,8 @@ NATEST_HDEF void na_AddTestCrash(const char* expr, int lineNum){
 
 
 NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, int lineNum){
-  #if NA_DEBUG
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
-  #endif
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
   NATestListItem* newItem = naAllocateTestListItem(testData);
@@ -658,7 +655,7 @@ NATEST_HDEF void na_SetTestCaseRunning(NATestBool running){
 
 
 
-NATEST_HDEF void na_IncErrorCount(void){
+NATEST_HDEF void naIncErrorCount(void){
   na_Testing->errorCount++;
 }
 
@@ -706,10 +703,8 @@ NATEST_HDEF NATestBool na_ShallExecuteGroup(const char* name){
 
 
 NATEST_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
-  #if NA_DEBUG
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
-  #endif
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   NATestBool shallExecute = na_ShallExecuteGroup(name);
   if(shallExecute)
@@ -729,10 +724,8 @@ NATEST_HDEF NATestBool na_StartTestGroup(const char* name, int lineNum){
 
 
 NATEST_HDEF void na_StopTestGroup(){
-  #if NA_DEBUG
   if(!na_Testing)
-    naCrash("Testing not running. Use naStartTesting.");
-  #endif
+    na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   if(na_Testing->printAllTestGroups || !na_Testing->curTestData->success){
     na_PrintTestGroup(na_Testing->curTestData);

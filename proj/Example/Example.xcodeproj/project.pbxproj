@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9013B7652A79B4CC00612E2D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7642A79B4CC00612E2D /* main.c */; };
-		9013B7732A79B4D300612E2D /* NATestList.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7682A79B4D300612E2D /* NATestList.h */; };
-		9013B7742A79B4D300612E2D /* NATestString.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7692A79B4D300612E2D /* NATestString.h */; };
-		9013B7752A79B4D300612E2D /* NATest.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B76A2A79B4D300612E2D /* NATest.c */; };
-		9013B7762A79B4D300612E2D /* NAMacroPrintout.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B76B2A79B4D300612E2D /* NAMacroPrintout.h */; };
-		9013B7772A79B4D300612E2D /* NAMacroPrintoutII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B76C2A79B4D300612E2D /* NAMacroPrintoutII.h */; };
-		9013B7782A79B4D300612E2D /* NATestII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B76D2A79B4D300612E2D /* NATestII.h */; };
-		9013B7792A79B4D300612E2D /* NATestEnvironment.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B76E2A79B4D300612E2D /* NATestEnvironment.h */; };
-		9013B77A2A79B4D300612E2D /* NATest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B76F2A79B4D300612E2D /* NATest.h */; };
-		9013B77B2A79B4D300612E2D /* NATestString.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7702A79B4D300612E2D /* NATestString.c */; };
-		9013B77C2A79B4D300612E2D /* NATestStringII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7712A79B4D300612E2D /* NATestStringII.h */; };
-		9013B77D2A79B4D300612E2D /* NAMacroPrintout.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7722A79B4D300612E2D /* NAMacroPrintout.c */; };
 		9013B7812A79B51000612E2D /* libNATest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9013B7522A79B49000612E2D /* libNATest.a */; };
+		9013B7852A79BCBF00612E2D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7842A79BCBF00612E2D /* main.c */; };
+		9013B7932A79BCC600612E2D /* NATestList.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7882A79BCC600612E2D /* NATestList.h */; };
+		9013B7942A79BCC600612E2D /* NATestString.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7892A79BCC600612E2D /* NATestString.h */; };
+		9013B7952A79BCC600612E2D /* NATest.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B78A2A79BCC600612E2D /* NATest.c */; };
+		9013B7962A79BCC600612E2D /* NAMacroPrintout.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B78B2A79BCC600612E2D /* NAMacroPrintout.h */; };
+		9013B7972A79BCC600612E2D /* NAMacroPrintoutII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B78C2A79BCC600612E2D /* NAMacroPrintoutII.h */; };
+		9013B7982A79BCC600612E2D /* NATestII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B78D2A79BCC600612E2D /* NATestII.h */; };
+		9013B7992A79BCC600612E2D /* NATestEnvironment.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B78E2A79BCC600612E2D /* NATestEnvironment.h */; };
+		9013B79A2A79BCC600612E2D /* NATest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B78F2A79BCC600612E2D /* NATest.h */; };
+		9013B79B2A79BCC600612E2D /* NATestString.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7902A79BCC600612E2D /* NATestString.c */; };
+		9013B79C2A79BCC600612E2D /* NATestStringII.h in Headers */ = {isa = PBXBuildFile; fileRef = 9013B7912A79BCC600612E2D /* NATestStringII.h */; };
+		9013B79D2A79BCC600612E2D /* NAMacroPrintout.c in Sources */ = {isa = PBXBuildFile; fileRef = 9013B7922A79BCC600612E2D /* NAMacroPrintout.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,18 +47,18 @@
 /* Begin PBXFileReference section */
 		9013B7522A79B49000612E2D /* libNATest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNATest.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9013B75B2A79B4AB00612E2D /* Example */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Example; sourceTree = BUILT_PRODUCTS_DIR; };
-		9013B7642A79B4CC00612E2D /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		9013B7682A79B4D300612E2D /* NATestList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestList.h; sourceTree = "<group>"; };
-		9013B7692A79B4D300612E2D /* NATestString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestString.h; sourceTree = "<group>"; };
-		9013B76A2A79B4D300612E2D /* NATest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NATest.c; sourceTree = "<group>"; };
-		9013B76B2A79B4D300612E2D /* NAMacroPrintout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NAMacroPrintout.h; sourceTree = "<group>"; };
-		9013B76C2A79B4D300612E2D /* NAMacroPrintoutII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NAMacroPrintoutII.h; sourceTree = "<group>"; };
-		9013B76D2A79B4D300612E2D /* NATestII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestII.h; sourceTree = "<group>"; };
-		9013B76E2A79B4D300612E2D /* NATestEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestEnvironment.h; sourceTree = "<group>"; };
-		9013B76F2A79B4D300612E2D /* NATest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATest.h; sourceTree = "<group>"; };
-		9013B7702A79B4D300612E2D /* NATestString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NATestString.c; sourceTree = "<group>"; };
-		9013B7712A79B4D300612E2D /* NATestStringII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestStringII.h; sourceTree = "<group>"; };
-		9013B7722A79B4D300612E2D /* NAMacroPrintout.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NAMacroPrintout.c; sourceTree = "<group>"; };
+		9013B7842A79BCBF00612E2D /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		9013B7882A79BCC600612E2D /* NATestList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestList.h; sourceTree = "<group>"; };
+		9013B7892A79BCC600612E2D /* NATestString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestString.h; sourceTree = "<group>"; };
+		9013B78A2A79BCC600612E2D /* NATest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NATest.c; sourceTree = "<group>"; };
+		9013B78B2A79BCC600612E2D /* NAMacroPrintout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NAMacroPrintout.h; sourceTree = "<group>"; };
+		9013B78C2A79BCC600612E2D /* NAMacroPrintoutII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NAMacroPrintoutII.h; sourceTree = "<group>"; };
+		9013B78D2A79BCC600612E2D /* NATestII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestII.h; sourceTree = "<group>"; };
+		9013B78E2A79BCC600612E2D /* NATestEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestEnvironment.h; sourceTree = "<group>"; };
+		9013B78F2A79BCC600612E2D /* NATest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATest.h; sourceTree = "<group>"; };
+		9013B7902A79BCC600612E2D /* NATestString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NATestString.c; sourceTree = "<group>"; };
+		9013B7912A79BCC600612E2D /* NATestStringII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NATestStringII.h; sourceTree = "<group>"; };
+		9013B7922A79BCC600612E2D /* NAMacroPrintout.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NAMacroPrintout.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,8 +83,8 @@
 		9013B7472A79B44200612E2D = {
 			isa = PBXGroup;
 			children = (
-				9013B7662A79B4D300612E2D /* NATest */,
-				9013B7622A79B4CC00612E2D /* Example */,
+				9013B7862A79BCC600612E2D /* NATest */,
+				9013B7822A79BCBF00612E2D /* Example */,
 				9013B7532A79B49000612E2D /* Products */,
 				9013B7802A79B51000612E2D /* Frameworks */,
 			);
@@ -99,55 +99,55 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9013B7622A79B4CC00612E2D /* Example */ = {
-			isa = PBXGroup;
-			children = (
-				9013B7632A79B4CC00612E2D /* src */,
-			);
-			name = Example;
-			path = ../code/Example;
-			sourceTree = "<group>";
-		};
-		9013B7632A79B4CC00612E2D /* src */ = {
-			isa = PBXGroup;
-			children = (
-				9013B7642A79B4CC00612E2D /* main.c */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		9013B7662A79B4D300612E2D /* NATest */ = {
-			isa = PBXGroup;
-			children = (
-				9013B7672A79B4D300612E2D /* src */,
-			);
-			name = NATest;
-			path = ../code/NATest;
-			sourceTree = "<group>";
-		};
-		9013B7672A79B4D300612E2D /* src */ = {
-			isa = PBXGroup;
-			children = (
-				9013B7682A79B4D300612E2D /* NATestList.h */,
-				9013B7692A79B4D300612E2D /* NATestString.h */,
-				9013B76A2A79B4D300612E2D /* NATest.c */,
-				9013B76B2A79B4D300612E2D /* NAMacroPrintout.h */,
-				9013B76C2A79B4D300612E2D /* NAMacroPrintoutII.h */,
-				9013B76D2A79B4D300612E2D /* NATestII.h */,
-				9013B76E2A79B4D300612E2D /* NATestEnvironment.h */,
-				9013B76F2A79B4D300612E2D /* NATest.h */,
-				9013B7702A79B4D300612E2D /* NATestString.c */,
-				9013B7712A79B4D300612E2D /* NATestStringII.h */,
-				9013B7722A79B4D300612E2D /* NAMacroPrintout.c */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
 		9013B7802A79B51000612E2D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9013B7822A79BCBF00612E2D /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				9013B7832A79BCBF00612E2D /* src */,
+			);
+			name = Example;
+			path = ../../code/Example;
+			sourceTree = "<group>";
+		};
+		9013B7832A79BCBF00612E2D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				9013B7842A79BCBF00612E2D /* main.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		9013B7862A79BCC600612E2D /* NATest */ = {
+			isa = PBXGroup;
+			children = (
+				9013B7872A79BCC600612E2D /* src */,
+			);
+			name = NATest;
+			path = ../../code/NATest;
+			sourceTree = "<group>";
+		};
+		9013B7872A79BCC600612E2D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				9013B7882A79BCC600612E2D /* NATestList.h */,
+				9013B7892A79BCC600612E2D /* NATestString.h */,
+				9013B78A2A79BCC600612E2D /* NATest.c */,
+				9013B78B2A79BCC600612E2D /* NAMacroPrintout.h */,
+				9013B78C2A79BCC600612E2D /* NAMacroPrintoutII.h */,
+				9013B78D2A79BCC600612E2D /* NATestII.h */,
+				9013B78E2A79BCC600612E2D /* NATestEnvironment.h */,
+				9013B78F2A79BCC600612E2D /* NATest.h */,
+				9013B7902A79BCC600612E2D /* NATestString.c */,
+				9013B7912A79BCC600612E2D /* NATestStringII.h */,
+				9013B7922A79BCC600612E2D /* NAMacroPrintout.c */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -157,14 +157,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9013B7742A79B4D300612E2D /* NATestString.h in Headers */,
-				9013B77A2A79B4D300612E2D /* NATest.h in Headers */,
-				9013B7772A79B4D300612E2D /* NAMacroPrintoutII.h in Headers */,
-				9013B7732A79B4D300612E2D /* NATestList.h in Headers */,
-				9013B7792A79B4D300612E2D /* NATestEnvironment.h in Headers */,
-				9013B7762A79B4D300612E2D /* NAMacroPrintout.h in Headers */,
-				9013B77C2A79B4D300612E2D /* NATestStringII.h in Headers */,
-				9013B7782A79B4D300612E2D /* NATestII.h in Headers */,
+				9013B7942A79BCC600612E2D /* NATestString.h in Headers */,
+				9013B79A2A79BCC600612E2D /* NATest.h in Headers */,
+				9013B7972A79BCC600612E2D /* NAMacroPrintoutII.h in Headers */,
+				9013B7932A79BCC600612E2D /* NATestList.h in Headers */,
+				9013B7992A79BCC600612E2D /* NATestEnvironment.h in Headers */,
+				9013B7962A79BCC600612E2D /* NAMacroPrintout.h in Headers */,
+				9013B79C2A79BCC600612E2D /* NATestStringII.h in Headers */,
+				9013B7982A79BCC600612E2D /* NATestII.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,9 +247,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9013B7752A79B4D300612E2D /* NATest.c in Sources */,
-				9013B77B2A79B4D300612E2D /* NATestString.c in Sources */,
-				9013B77D2A79B4D300612E2D /* NAMacroPrintout.c in Sources */,
+				9013B7952A79BCC600612E2D /* NATest.c in Sources */,
+				9013B79B2A79BCC600612E2D /* NATestString.c in Sources */,
+				9013B79D2A79BCC600612E2D /* NAMacroPrintout.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +257,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9013B7652A79B4CC00612E2D /* main.c in Sources */,
+				9013B7852A79BCBF00612E2D /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,7 +442,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = $PROJECT_DIR/../code/NATest/src/;
+				FRAMEWORK_SEARCH_PATHS = $PROJECT_DIR/../../code/NATest/src/;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -505,7 +505,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = $PROJECT_DIR/../code/NATest/src/;
+				FRAMEWORK_SEARCH_PATHS = $PROJECT_DIR/../../code/NATest/src/;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
