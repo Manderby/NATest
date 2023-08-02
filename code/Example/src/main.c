@@ -10,8 +10,10 @@ void simpleThings(void){
   // naTest tests whether the given expression evaluates to true.
   naTest(1 == 1);
   naTest(1 == 0);
+  naTest(7 > 3);
   naTest(4 < 6);
   naTest(4 > 6);
+  naTest(NATEST_TRUE);
 }
 
 void functionWithoutError(void){
@@ -24,8 +26,14 @@ void functionWithError(void){
 }
 
 void buggyThings(void){
+  // naTestVoid simply executes the given expression and reacts upon any error
+  // which might occur. In order for something to count as an error, the
+  // naIncErrorCount function must be called.
   naTestVoid(functionWithoutError());
   naTestVoid(functionWithError());
+  
+  // naTestError also executes the given expression but expects there to be an
+  // error. If non happends, this is equivalent to a failed test.
   naTestError(functionWithoutError());
   naTestError(functionWithError());
 }
@@ -36,6 +44,7 @@ int main(int argc, const char **argv){
   NATestBool success = naStartTesting(
     "Example",
     0.01,
+    NATEST_TRUE, 
     NATEST_TRUE, 
     argc,
     argv);

@@ -17,7 +17,7 @@ const char* na_YesNoStrings[] = {
 NATEST_HDEF void na_PrintMacroHead(const NATestUTF8Char* macroString){
   printf("%s", macroString);
   printf(" ");  // Write at least one space
-  for(int c = 0; c < (int)(NA_TEST_MAX_MACRO_LENGTH - strlen(macroString) - 1); c++){
+  for(size_t c = 0; c < NA_TEST_MAX_MACRO_LENGTH - strlen(macroString) - 1; c++){
     printf(" ");
   }
 }

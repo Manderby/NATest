@@ -22,11 +22,11 @@
 // ///////////////////////
 
 
-// Prints the value of the macro as as simple decimal int.
+// Prints the value of the macro as as simple decimal integer.
 #define naPrintMacroInt(macro)
 
-// Prints the value of the macro as a decimal or hexadecimal int but outputs
-// the given string if the given special Value occurs.
+// Prints the value of the macro as a decimal or hexadecimal integer but
+// outputs the given string if the given special value occurs.
 #define naPrintMacroIntSpecial(macro, specialValue, specialString)
 #define naPrintMacroIntSpecialHex(macro, specialValue, specialString)
 

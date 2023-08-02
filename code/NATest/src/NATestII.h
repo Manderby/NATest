@@ -19,17 +19,17 @@
 
 
 
-NATEST_HAPI void       na_AddTest(const char* expr, int success, int lineNum);
-NATEST_HAPI void       na_AddTestError(const char* expr, int lineNum);
-NATEST_HAPI void       na_AddTestCrash(const char* expr, int lineNum);
-NATEST_HAPI void       na_ExecuteCrashProcess(const char* expr, int lineNum);
-NATEST_HAPI NATestBool na_StartTestGroup(const char* name, int lineNum);
+NATEST_HAPI void       na_AddTest(const char* expr, NATestBool success, size_t lineNum);
+NATEST_HAPI void       na_AddTestError(const char* expr, size_t lineNum);
+NATEST_HAPI void       na_AddTestCrash(const char* expr, size_t lineNum);
+NATEST_HAPI void       na_ExecuteCrashProcess(const char* expr, size_t lineNum);
+NATEST_HAPI NATestBool na_StartTestGroup(const char* name, size_t lineNum);
 NATEST_HAPI void       na_StopTestGroup(void);
 NATEST_HAPI void       na_RegisterUntested(const char* text);
 NATEST_HAPI NATestBool na_GetTestCaseRunning(void);
 NATEST_HAPI void       na_SetTestCaseRunning(NATestBool running);
 NATEST_HAPI void       na_ResetErrorCount(void);
-NATEST_HAPI int        na_GetErrorCount(void);
+NATEST_HAPI size_t     na_GetErrorCount(void);
 NATEST_HDEF NATestBool na_LetCrashTestCrash(void);
 NATEST_HAPI NATestBool na_ShallExecuteGroup(const char* name);
 
@@ -37,7 +37,7 @@ NATEST_HAPI uint32 na_GetBenchmarkIn(void);
 NATEST_HAPI double na_BenchmarkTime(void);
 NATEST_HAPI double na_GetBenchmarkLimit(void);
 NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
-NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, int lineNum);
+NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum);
 
 
 void na_TestEmitError(NATestUTF8Char* message);
@@ -62,7 +62,7 @@ void na_TestEmitCrash(NATestUTF8Char* message);
     NA_START_TEST_CASE\
     NATestBool success = expr;\
     NA_STOP_TEST_CASE\
-    na_AddTest(#expr, success, __LINE__);\
+    na_AddTest(#expr, success, (size_t)__LINE__);\
   }
 
 #define naTestVoid(expr)\
@@ -70,7 +70,7 @@ void na_TestEmitCrash(NATestUTF8Char* message);
     NA_START_TEST_CASE\
     expr;\
     NA_STOP_TEST_CASE\
-    na_AddTest(#expr, NATEST_TRUE, __LINE__);\
+    na_AddTest(#expr, NATEST_TRUE, (size_t)__LINE__);\
   }
   
   
@@ -80,7 +80,7 @@ void na_TestEmitCrash(NATestUTF8Char* message);
     NA_START_TEST_CASE\
     { expr; }\
     NA_STOP_TEST_CASE\
-    na_AddTestError(#expr, __LINE__);\
+    na_AddTestError(#expr, (size_t)__LINE__);\
   }
 
 #define naTestCrash(expr)\
@@ -89,9 +89,9 @@ void na_TestEmitCrash(NATestUTF8Char* message);
       NA_START_TEST_CASE\
       { expr; }\
       NA_STOP_TEST_CASE\
-      na_AddTestCrash(#expr, __LINE__);\
+      na_AddTestCrash(#expr, (size_t)__LINE__);\
     }else{\
-      na_ExecuteCrashProcess(#expr, __LINE__);\
+      na_ExecuteCrashProcess(#expr, (size_t)__LINE__);\
     }\
   }
 
@@ -99,11 +99,11 @@ void na_TestEmitCrash(NATestUTF8Char* message);
 
 // Grouping tests
 #define naTestGroup(string)\
-  for(int g = na_StartTestGroup(string, __LINE__); g > 0 ; g--, na_StopTestGroup())
+  for(int g = (int)na_StartTestGroup(string, (size_t)__LINE__); g > 0 ; g--, na_StopTestGroup())
 
 #define naTestFunction(function)\
   {\
-  if(na_StartTestGroup(#function, __LINE__)){\
+  if(na_StartTestGroup(#function, (size_t)__LINE__)){\
     function();\
     na_StopTestGroup();\
   }\
@@ -138,7 +138,7 @@ void na_TestEmitCrash(NATestUTF8Char* message);
     if(timeDiff > na_GetBenchmarkLimit()){break;}\
     testSize <<= 1;\
   }\
-  na_PrintBenchmark(timeDiff, testSize * 2, #expr, __LINE__);\
+  na_PrintBenchmark(timeDiff, testSize * 2, #expr, (size_t)__LINE__);\
 }
 
 #define naTestIn\

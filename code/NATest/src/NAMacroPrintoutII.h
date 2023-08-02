@@ -36,15 +36,15 @@ NATEST_HAPI void na_PrintMacroEnum(const NATestUTF8Char* macroString, int value,
 #define naPrintMacroDefined(macro)\
   na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NATEST_FALSE)
 #define naPrintMacroInt(macro)\
-  na_PrintMacroInt(#macro, (int)macro)
+  na_PrintMacroInt(#macro, (int)(macro))
 #define naPrintMacroIntSpecial(macro, specialValue, specialString)\
-  na_PrintMacroIntSpecial(#macro, (int)macro, (int)specialValue, specialString)
+  na_PrintMacroIntSpecial(#macro, (int)(macro), (int)(specialValue), specialString)
 #define naPrintMacroIntSpecialHex(macro, specialValue, specialString)\
-  na_PrintMacroIntSpecialHex(#macro, (int)macro, (int)specialValue, specialString)
+  na_PrintMacroIntSpecialHex(#macro, (int)(macro), (int)(specialValue), specialString)
 #define naPrintMacroIntYesNo(macro)\
-  na_PrintMacroIntYesNo(#macro, (int)macro)
+  na_PrintMacroIntYesNo(#macro, (int)(macro))
 #define naPrintMacroEnum(macro, strings, maxValue)\
-  na_PrintMacroEnum(#macro, (int)macro, strings, maxValue)
+  na_PrintMacroEnum(#macro, (int)(macro), strings, (int)(maxValue))
 
 NATEST_HAPI void na_PrintMacroux8(const NATestUTF8Char* macroString, uint8 value);
 NATEST_HAPI void na_PrintMacroix8(const NATestUTF8Char* macroString, int8 value);

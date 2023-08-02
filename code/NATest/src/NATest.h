@@ -23,6 +23,7 @@
 NATEST_API NATestBool naStartTesting(
   const NATestUTF8Char* rootName,
   double timePerBenchmark,
+  NATestBool printAllTests,
   NATestBool printAllGroups,
   int argc,
   const char** argv);
