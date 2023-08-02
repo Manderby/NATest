@@ -191,7 +191,6 @@ NATEST_HIDEF void na_PrintTestGroup(NATestData* testData){
     na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
     printf(NATEST_NL);
   }
-  printf(NATEST_NL);
 }
 
 

@@ -66,8 +66,8 @@ NATEST_API void naIncErrorCount(void);
 // is reached. Outputs the number of executions per second.
 #define naBenchmark(expr)
 
-// Evaluates to a pseudo random number. Use this for test inputs to your
-// benchmark expression.
+// Evaluates to a uint32 pseudo random number. Use this for test inputs to
+// your benchmark expression.
 #define naTestIn
 
 

@@ -1,19 +1,21 @@
 
 #include "NATest.h"
 
-void untestedThings(void){
-  naUntested("I need to test P = NP");
-  naUntested("Test buffer overflows");
-}
-
 void simpleThings(void){
   // naTest tests whether the given expression evaluates to true.
-  naTest(1 == 1);
-  naTest(1 == 0);
-  naTest(7 > 3);
-  naTest(4 < 6);
-  naTest(4 > 6);
-  naTest(NATEST_TRUE);
+  
+  naTestGroup("Arithmetical tests"){
+    naTest(1 == 1);
+    naTest(1 == 0);
+    naTest(7 > 3);
+    naTest(4 < 6);
+    naTest(4 > 6);
+  }
+  
+  naTestGroup("Logical tests"){
+    naTest(NATEST_TRUE);
+    naTest(NATEST_FALSE);
+  }
 }
 
 void functionWithoutError(void){
@@ -23,6 +25,11 @@ void functionWithoutError(void){
 void functionWithError(void){
   // This simulates an error.
   naIncErrorCount();
+}
+
+void functionCrashing(void){
+  int* badPointer = NATEST_NULL;
+  *badPointer = 1234;
 }
 
 void buggyThings(void){
@@ -36,6 +43,39 @@ void buggyThings(void){
   // error. If non happends, this is equivalent to a failed test.
   naTestError(functionWithoutError());
   naTestError(functionWithError());
+
+  // naTestCrash tries to execute the expression but expects it to crash. If
+  // it does not crash, this is equivalent to a failed test.
+  naTestCrash(functionCrashing());
+}
+
+void functionWhichNeedsTime(void){
+  for(int i = 0; i < 10000; ++i){
+    static int myCounter = 0;
+    myCounter++;
+  }
+}
+
+void functionWhichNeedsEvenMoreTime(void){
+  for(int i = 0; i < 1000000; ++i){
+    static int myCounter = 0;
+    myCounter++;
+  }
+}
+
+void functionWhichComputesSomething(void){
+  for(int i = 0; i < 10000; ++i){
+    static int myCounter = 0;
+    // The expression naTestIn always evaluates to a different uint32 number
+    // each time the programm executes it.
+    myCounter += naTestIn;
+  }
+}
+
+void benchmarks(void){
+  naBenchmark(functionWhichNeedsTime());
+  naBenchmark(functionWhichNeedsEvenMoreTime());
+  naBenchmark(functionWhichComputesSomething());
 }
 
 int main(int argc, const char **argv){
@@ -57,8 +97,12 @@ int main(int argc, const char **argv){
   naTestFunction(simpleThings);
   naTestFunction(buggyThings);
 
-//  naTestFunction(untestedThings);
-//  naPrintUntested();
+  naUntested("I need to test P = NP");
+  naUntested("Test buffer overflows");
+  naPrintUntested();
+
+  printf("Benchmarks:" NATEST_NL);
+  benchmarks();
 
   naStopTesting();
 
