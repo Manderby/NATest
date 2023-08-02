@@ -146,8 +146,14 @@ NATEST_HDEF NATestUTF8Char* na_NewTestPath(NATestData* testData, NATestBool esca
 
 
 
-NATEST_HIDEF void na_PrintErrorColumn(NATestUTF8Char code, size_t lineNum){
+NATEST_HIDEF void na_PrintErrorColumnWithLineNum(NATestUTF8Char code, size_t lineNum){
   printf("%c  Line %zd: ", code, lineNum);
+}
+
+
+
+NATEST_HIDEF void na_PrintErrorColumn(NATestUTF8Char code){
+  printf("%c  ", code);
 }
 
 
@@ -362,7 +368,8 @@ NATEST_DEF void naPrintUntested(void){
     NATestListItem* cur = na_Testing->untestedStrings->next;
     while(cur != na_Testing->untestedStrings){
       const NATestUTF8Char* string = (const NATestUTF8Char*)cur->data;
-      printf("U %s" NATEST_NL, string);
+      na_PrintErrorColumn('U');
+      printf("%s" NATEST_NL, string);
       cur = cur->next;
     }
   }
@@ -405,15 +412,15 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
   if(na_GetErrorCount() > 0){
     testData->success = NATEST_FALSE;
     na_UpdateTestParentLeaf(na_Testing->curTestData, NATEST_FALSE);
-    na_PrintErrorColumn('E', lineNum);
+    na_PrintErrorColumnWithLineNum('E', lineNum);
     printf("%zd errors occured in %s" NATEST_NL, na_GetErrorCount(), expr);
   }else{
     testData->success = (NATestBool)success;
     na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)success);
     if(success && na_Testing->printAllTests){
-      na_PrintErrorColumn(' ', lineNum);
+      na_PrintErrorColumnWithLineNum(' ', lineNum);
     }else if(!success){
-    na_PrintErrorColumn('F', lineNum);
+    na_PrintErrorColumnWithLineNum('F', lineNum);
     }
     if(!success || na_Testing->printAllTests){
       printf("%s" NATEST_NL, expr);
@@ -440,7 +447,7 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
   testData->success = na_GetErrorCount() != 0;
   na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
   if(!testData->success){
-    na_PrintErrorColumn('N', lineNum);
+    na_PrintErrorColumnWithLineNum('N', lineNum);
     printf("No Error raised in %s" NATEST_NL, expr);
   }
 
@@ -575,8 +582,7 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     argv[1] = "-C"; // DO NOT TURN -C OPTION OFF!!!
     int i = 2;
 
-    for(size_t curBackIndex = 0; curBackIndex < curTestPathStringIndex; curBackIndex++)
-    {
+    for(size_t curBackIndex = 0; curBackIndex < curTestPathStringIndex; curBackIndex++){
       const char* curPathItem = testPathStrings[curTestPathStringIndex - curBackIndex - 1];
       NATestUTF8Char* pathItemString = naAllocTestStringWithFormat("%s", curPathItem);
       NATestUTF8Char* escapedPathItemString = naAllocTestStringCEscaped(pathItemString);
@@ -590,6 +596,10 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       ++i;
     }
     argv[curTestPathStringIndex + 2] = NATEST_NULL;
+
+//    for(int i = 0; i < curTestPathStringIndex + 2; i++){
+//      printf("Arg %d: %s\n", i, argv[i]);
+//    }
 
     pid_t childPid = fork();
     if(!childPid){
@@ -632,8 +642,11 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       close(oldStdErr);
 
       if(!testData->success){
-        na_PrintErrorColumn('C', lineNum);
+        na_PrintErrorColumnWithLineNum('C', lineNum);
         printf("No Crash happened in %s" NATEST_NL, expr);
+      }else{
+        na_PrintErrorColumnWithLineNum(' ', lineNum);
+        printf("Expected Crash happened in %s" NATEST_NL, expr);
       }
     }
     
