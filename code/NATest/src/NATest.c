@@ -181,10 +181,14 @@ NATEST_HIDEF void na_PrintRatio(size_t successCount, size_t totalCount){
 
 
 
-NATEST_HIDEF void na_PrintTestGroup(NATestData* testData){
+NATEST_HIDEF void na_PrintTestGroup(NATestData* testData, NATestBool printName){
   if(testData->totalLeafCount == 0){return;}
 
   printf("Result: ");
+  if(printName){
+    na_PrintTestName(na_Testing->curTestData);
+    printf(" ");
+  }
   if(testData->totalLeafCount == testData->childsCount){
     printf("%zd / %zd Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
     na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
@@ -324,9 +328,9 @@ NATEST_DEF void naStopTesting(){
     }else{
       if(na_Testing->rootTestData->success){
         printf("All test successful." NATEST_NL);
-        if(!na_Testing->printAllTestGroups){
-          na_PrintTestGroup(na_Testing->rootTestData);
-        }
+//        if(!na_Testing->printAllTestGroups){
+          na_PrintTestGroup(na_Testing->rootTestData, NATEST_FALSE);
+//        }
       }
     }
     printf("Testing finished." NATEST_NL NATEST_NL);
@@ -420,7 +424,7 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
     if(success && na_Testing->printAllTests){
       na_PrintErrorColumnWithLineNum(' ', lineNum);
     }else if(!success){
-    na_PrintErrorColumnWithLineNum('F', lineNum);
+      na_PrintErrorColumnWithLineNum('F', lineNum);
     }
     if(!success || na_Testing->printAllTests){
       printf("%s" NATEST_NL, expr);
@@ -449,6 +453,9 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
   if(!testData->success){
     na_PrintErrorColumnWithLineNum('N', lineNum);
     printf("No Error raised in %s" NATEST_NL, expr);
+  }else{
+    na_PrintErrorColumnWithLineNum(' ', lineNum);
+    printf("Expected Error in %s" NATEST_NL, expr);
   }
 
   na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
@@ -741,6 +748,7 @@ NATEST_HDEF NATestBool na_StartTestGroup(const char* name, size_t lineNum){
     na_Testing->curTestData->childSuccessCount++;
     na_Testing->curTestData = testData;
 
+    printf("-- ");
     na_PrintTestName(na_Testing->curTestData);
     printf(NATEST_NL);
   }
@@ -753,9 +761,9 @@ NATEST_HDEF void na_StopTestGroup(){
   if(!na_Testing)
     na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
-  if(na_Testing->printAllTestGroups || !na_Testing->curTestData->success){
-    na_PrintTestGroup(na_Testing->curTestData);
-  }
+//  if(na_Testing->printAllTestGroups || !na_Testing->curTestData->success){
+//    na_PrintTestGroup(na_Testing->curTestData, NATEST_TRUE);
+//  }
   na_Testing->curTestData = na_Testing->curTestData->parent;
   na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
