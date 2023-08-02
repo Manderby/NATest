@@ -3,6 +3,7 @@
 #undef naPrintMacro
 #undef naPrintMacroDefined
 #undef naPrintMacroInt
+#undef naPrintMacroIntHex
 #undef naPrintMacroIntSpecial
 #undef naPrintMacroIntSpecialHex
 #undef naPrintMacroIntYesNo
@@ -22,21 +23,26 @@
 #undef naPrintMacroix256
 
 
+// The authors proudest achievement at 4 o'clock in the morning.
+#define NATEST_STRINGIFY(...) #__VA_ARGS__ ""
 
 // Prototypes of helper functions which should be invisible to the user.
 NATEST_HAPI void na_PrintMacroPlain(const NATestUTF8Char* macroString, const NATestUTF8Char* macroStringified, NATestBool printContent);
 NATEST_HAPI void na_PrintMacroInt(const NATestUTF8Char* macroString, int value);
+NATEST_HAPI void na_PrintMacroIntHex(const NATestUTF8Char* macroString, int value);
 NATEST_HAPI void na_PrintMacroIntSpecial(const NATestUTF8Char* macroString, int value, int specialValue, const NATestUTF8Char* specialString);
 NATEST_HAPI void na_PrintMacroIntSpecialHex(const NATestUTF8Char* macroString, int value, int specialValue, const NATestUTF8Char* specialString);
 NATEST_HAPI void na_PrintMacroIntYesNo(const NATestUTF8Char* macroString, int value);
 NATEST_HAPI void na_PrintMacroEnum(const NATestUTF8Char* macroString, int value, const NATestUTF8Char** strings, int enumCount);
 
 #define naPrintMacro(macro)\
-  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NATEST_TRUE)
+  na_PrintMacroPlain(#macro, NATEST_STRINGIFY(macro), NATEST_TRUE)
 #define naPrintMacroDefined(macro)\
-  na_PrintMacroPlain(#macro, NA_STRINGIFY(macro), NATEST_FALSE)
+  na_PrintMacroPlain(#macro, NATEST_STRINGIFY(macro), NATEST_FALSE)
 #define naPrintMacroInt(macro)\
   na_PrintMacroInt(#macro, (int)(macro))
+#define naPrintMacroIntHex(macro)\
+  na_PrintMacroIntHex(#macro, (int)(macro))
 #define naPrintMacroIntSpecial(macro, specialValue, specialString)\
   na_PrintMacroIntSpecial(#macro, (int)(macro), (int)(specialValue), specialString)
 #define naPrintMacroIntSpecialHex(macro, specialValue, specialString)\
@@ -49,31 +55,31 @@ NATEST_HAPI void na_PrintMacroEnum(const NATestUTF8Char* macroString, int value,
 NATEST_HAPI void na_PrintMacroux8(const NATestUTF8Char* macroString, uint8 value);
 NATEST_HAPI void na_PrintMacroix8(const NATestUTF8Char* macroString, int8 value);
 #define naPrintMacroux8(macro)\
-  na_PrintMacroux8(#macro, macro)
+  na_PrintMacroux8(#macro, (uint8)(macro))
 #define naPrintMacroix8(macro)\
-  na_PrintMacroix8(#macro, macro)
+  na_PrintMacroix8(#macro, (int8)(macro))
 
 NATEST_HAPI void na_PrintMacroux16(const NATestUTF8Char* macroString, uint16 value);
 NATEST_HAPI void na_PrintMacroix16(const NATestUTF8Char* macroString, int16 value);
 #define naPrintMacroux16(macro)\
-  na_PrintMacroux16(#macro, macro)
+  na_PrintMacroux16(#macro, (uint16)(macro))
 #define naPrintMacroix16(macro)\
-  na_PrintMacroix16(#macro, macro)
+  na_PrintMacroix16(#macro, (int16)(macro))
 
 NATEST_HAPI void na_PrintMacroux32(const NATestUTF8Char* macroString, uint32 value);
 NATEST_HAPI void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 value);
 #define naPrintMacroux32(macro)\
-  na_PrintMacroux32(#macro, macro)
+  na_PrintMacroux32(#macro, (uint32)(macro))
 #define naPrintMacroix32(macro)\
-  na_PrintMacroix32(#macro, macro)
+  na_PrintMacroix32(#macro, (int32)(macro))
 
 #ifdef UINT64_MAX
   NATEST_HAPI void na_PrintMacroux64(const NATestUTF8Char* macroString, uint64 value);
   NATEST_HAPI void na_PrintMacroix64(const NATestUTF8Char* macroString, int64 value);
   #define naPrintMacroux64(macro)\
-    na_PrintMacroux64(#macro, macro)
+    na_PrintMacroux64(#macro, (uint64)(macro))
   #define naPrintMacroix64(macro)\
-    na_PrintMacroix64(#macro, macro)
+    na_PrintMacroix64(#macro, (int64)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux64(const NATestUTF8Char* macroString);
   NATEST_HAPI void na_PrintMacroix64(const NATestUTF8Char* macroString);
@@ -87,9 +93,9 @@ NATEST_HAPI void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   NATEST_HAPI void na_PrintMacroux128(const NATestUTF8Char* macroString, uint128 value);
   NATEST_HAPI void na_PrintMacroix128(const NATestUTF8Char* macroString, int128 value);
   #define naPrintMacroux128(macro)\
-    na_PrintMacroux128(#macro, macro)
+    na_PrintMacroux128(#macro, (uint128)(macro))
   #define naPrintMacroix128(macro)\
-    na_PrintMacroix128(#macro, macro)
+    na_PrintMacroix128(#macro, (int128)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux128(const NATestUTF8Char* macroString);
   NATEST_HAPI void na_PrintMacroix128(const NATestUTF8Char* macroString);
@@ -103,9 +109,9 @@ NATEST_HAPI void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   NATEST_HAPI void na_PrintMacroux256(const NATestUTF8Char* macroString, uint256 value);
   NATEST_HAPI void na_PrintMacroix256(const NATestUTF8Char* macroString, int256 value);
   #define naPrintMacroux256(macro)\
-    na_PrintMacroux256(#macro, macro)
+    na_PrintMacroux256(#macro, (uint256)(macro))
   #define naPrintMacroix256(macro)\
-    na_PrintMacroix256(#macro, macro)
+    na_PrintMacroix256(#macro, (int256)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux256(const NATestUTF8Char* macroString);
   NATEST_HAPI void na_PrintMacroix256(const NATestUTF8Char* macroString);

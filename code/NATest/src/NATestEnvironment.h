@@ -1,6 +1,6 @@
 
-#ifndef NA_TEST_ENVIRONMENT_INCLUDED
-#define NA_TEST_ENVIRONMENT_INCLUDED
+#ifndef NATEST_ENVIRONMENT_INCLUDED
+#define NATEST_ENVIRONMENT_INCLUDED
 
 // Do not include this file directly!
 // This is the base include file of NATest which covers all needed datatypes
@@ -115,7 +115,7 @@ typedef uint32_t uint32;
 
 
 
-#endif // NA_TEST_ENVIRONMENT_INCLUDED
+#endif // NATEST_ENVIRONMENT_INCLUDED
 
 
 

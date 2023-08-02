@@ -94,18 +94,69 @@ int main(int argc, const char **argv){
     exit(1);
   }
 
+  // Start executing tests
   naTestFunction(simpleThings);
   naTestFunction(buggyThings);
 
+  // Use naUntested anywhere in the test application to remember things which
+  // are not tested yet. A call to naPrintUntested will list all registered
+  // Strings.
   naUntested("I need to test P = NP");
   naUntested("Test buffer overflows");
   naPrintUntested();
 
+  // You can run benchmars anywhere in your test application and they will be
+  // executed on the spot with approximately the number of seconds each which
+  // you defined when using naStartTesting.
   printf("Benchmarks:" NATEST_NL);
   benchmarks();
 
+  // When naStopTesting is called, a final printout is made an all testing
+  // memory is released.
   naStopTesting();
 
+  naPrintMacro(__LINE__);
+  naPrintMacroDefined(UNDEFINED_MACRO);
+  #define DEFINED_MACRO
+  naPrintMacroDefined(DEFINED_MACRO);
+  #define DEFINED_MACRO_WITH_VALUE 1234
+  naPrintMacroDefined(DEFINED_MACRO_WITH_VALUE);
+
+  naPrintMacroInt(DEFINED_MACRO_WITH_VALUE);
+  naPrintMacroIntHex(DEFINED_MACRO_WITH_VALUE);
+  naPrintMacroIntSpecial(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
+  naPrintMacroIntSpecialHex(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
+  
+  #define THIS_IS_TRUE 1
+  naPrintMacroIntYesNo(THIS_IS_TRUE);
+  
+  enum{
+    MY_VALUE_A,
+    MY_VALUE_B,
+    MY_VALUE_C,
+    COUNT
+  };
+  const char* enumStrings[COUNT] = {
+    "Value A",
+    "Value B",
+    "Value C"
+  };
+  naPrintMacroEnum(MY_VALUE_A, enumStrings, COUNT);
+  
+  #define MY_NUMBER 0xfdecba98
+  naPrintMacroux8(MY_NUMBER);
+  naPrintMacroix8(MY_NUMBER);
+  naPrintMacroux16(MY_NUMBER);
+  naPrintMacroix16(MY_NUMBER);
+  naPrintMacroux32(MY_NUMBER);
+  naPrintMacroix32(MY_NUMBER);
+  naPrintMacroux64(MY_NUMBER);
+  naPrintMacroix64(MY_NUMBER);
+  naPrintMacroux128(MY_NUMBER);
+  naPrintMacroix128(MY_NUMBER);
+  naPrintMacroux256(MY_NUMBER);
+  naPrintMacroix256(MY_NUMBER);
+  
   return 0;
 }
 

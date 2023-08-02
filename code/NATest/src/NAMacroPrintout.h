@@ -1,9 +1,6 @@
 // //////////////////////////////////
 // Printout macros.
 // The following macros can be used to output some information to stdout.
-// Note that they require NA_ENABLE_PRINTOUTS to be 1, otherwise they just
-// do noting. And note that these macros call functions which will need the
-// NAString implementation and include the stdio.h header.
 
 // Prints the definition of the macro.
 // If undefined:            (Undefined)
@@ -24,6 +21,7 @@
 
 // Prints the value of the macro as as simple decimal integer.
 #define naPrintMacroInt(macro)
+#define naPrintMacroIntHex(macro)
 
 // Prints the value of the macro as a decimal or hexadecimal integer but
 // outputs the given string if the given special value occurs.

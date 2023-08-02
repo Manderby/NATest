@@ -22,8 +22,7 @@
 
 
 // How many precomputed random numbers.
-#define NA_TEST_INDEX_COUNT 0x10000
-#define NA_TEST_INDEX_MASK (NA_TEST_INDEX_COUNT - 1)
+#define NATEST_INDEX_COUNT 65521  // prime number smaller than 65535
 
 
 
@@ -56,7 +55,7 @@ struct NATesting {
   NATestListItem* testRestriction;
   NATestListItem* restrictionIt;
   size_t curInIndex;
-  uint32 in[NA_TEST_INDEX_COUNT];
+  uint32 in[NATEST_INDEX_COUNT];
   NATestFile logFile;
 };
 
@@ -227,7 +226,7 @@ NATEST_DEF NATestBool naStartTesting(
   na_SetTestCaseRunning(NATEST_FALSE);
   na_ResetErrorCount();
 
-  for(na_Testing->curInIndex = 0; na_Testing->curInIndex < NA_TEST_INDEX_COUNT; na_Testing->curInIndex++){
+  for(na_Testing->curInIndex = 0; na_Testing->curInIndex < NATEST_INDEX_COUNT; na_Testing->curInIndex++){
     na_Testing->in[na_Testing->curInIndex] = ((uint32)rand() << 20) ^ ((uint32)rand() << 10) ^ ((uint32)rand());
   }
 
@@ -550,8 +549,8 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 
     NATestUTF8Char* modulePath = na_NewTestApplicationPath();
 
-    #define NA_MAX_TEST_INPUT_STRINGS 100
-    const char* testPathStrings[NA_MAX_TEST_INPUT_STRINGS];
+    #define NATEST_MAX_INPUT_STRINGS 100
+    const char* testPathStrings[NATEST_MAX_INPUT_STRINGS];
     size_t curTestPathStringIndex = 0;
 
     testPathStrings[curTestPathStringIndex] = expr;
@@ -751,7 +750,7 @@ NATEST_HDEF void na_StopTestGroup(){
 
 
 NATEST_HDEF uint32 na_GetBenchmarkIn(){
-  na_Testing->curInIndex = (na_Testing->curInIndex + 1) & NA_TEST_INDEX_MASK;
+  na_Testing->curInIndex = (na_Testing->curInIndex + 1) % NATEST_INDEX_COUNT;
   return na_Testing->in[na_Testing->curInIndex];
 }
 

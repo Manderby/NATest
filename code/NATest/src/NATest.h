@@ -1,5 +1,6 @@
-#ifndef NA_TEST_INCLUDED
-#define NA_TEST_INCLUDED
+#ifndef NATEST_INCLUDED
+#define NATEST_INCLUDED
+
 #ifdef __cplusplus
   extern "C"{
 #endif
@@ -80,7 +81,7 @@ NATEST_API void naIncErrorCount(void);
 #ifdef __cplusplus
   }
 #endif
-#endif // NA_TEST_INCLUDED
+#endif // NATEST_INCLUDED
 
 
 

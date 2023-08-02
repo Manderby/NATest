@@ -1,6 +1,6 @@
 
-#ifndef NA_TEST_II_INCLUDED
-#define NA_TEST_II_INCLUDED
+#ifndef NATEST_II_INCLUDED
+#define NATEST_II_INCLUDED
 
 
 
@@ -45,13 +45,13 @@ void na_TestEmitCrash(NATestUTF8Char* message);
 
 
 // Starting and stopping tests
-#define NA_START_TEST_CASE\
+#define NATEST_START_TEST_CASE\
   if(na_GetTestCaseRunning())\
     na_TestEmitError("A test case is already running. This might lead to bad test results.");\
   na_SetTestCaseRunning(NATEST_TRUE);\
   na_ResetErrorCount();
 
-#define NA_STOP_TEST_CASE\
+#define NATEST_STOP_TEST_CASE\
   na_SetTestCaseRunning(NATEST_FALSE);
 
 
@@ -59,17 +59,17 @@ void na_TestEmitCrash(NATestUTF8Char* message);
 // Testing expressions
 #define naTest(expr)\
   if(na_ShallExecuteGroup(#expr)){\
-    NA_START_TEST_CASE\
+    NATEST_START_TEST_CASE\
     NATestBool success = expr;\
-    NA_STOP_TEST_CASE\
+    NATEST_STOP_TEST_CASE\
     na_AddTest(#expr, success, (size_t)__LINE__);\
   }
 
 #define naTestVoid(expr)\
   if(na_ShallExecuteGroup(#expr)){\
-    NA_START_TEST_CASE\
+    NATEST_START_TEST_CASE\
     expr;\
-    NA_STOP_TEST_CASE\
+    NATEST_STOP_TEST_CASE\
     na_AddTest(#expr, NATEST_TRUE, (size_t)__LINE__);\
   }
   
@@ -77,18 +77,18 @@ void na_TestEmitCrash(NATestUTF8Char* message);
 
 #define naTestError(expr)\
   if(na_ShallExecuteGroup(#expr)){\
-    NA_START_TEST_CASE\
+    NATEST_START_TEST_CASE\
     { expr; }\
-    NA_STOP_TEST_CASE\
+    NATEST_STOP_TEST_CASE\
     na_AddTestError(#expr, (size_t)__LINE__);\
   }
 
 #define naTestCrash(expr)\
   if(na_ShallExecuteGroup(#expr)){\
     if(na_LetCrashTestCrash()){\
-      NA_START_TEST_CASE\
+      NATEST_START_TEST_CASE\
       { expr; }\
-      NA_STOP_TEST_CASE\
+      NATEST_STOP_TEST_CASE\
       na_AddTestCrash(#expr, (size_t)__LINE__);\
     }else{\
       na_ExecuteCrashProcess(#expr, (size_t)__LINE__);\
@@ -146,7 +146,7 @@ void na_TestEmitCrash(NATestUTF8Char* message);
 
 
 
-#endif // NA_TEST_II_INCLUDED
+#endif // NATEST_II_INCLUDED
 
 
 

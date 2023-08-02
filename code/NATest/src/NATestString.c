@@ -76,9 +76,6 @@ NATEST_HDEF NATestUTF8Char* na_AllocTestStringWithArguments(const NATestUTF8Char
   }
   va_end(argumentList2);
   va_end(argumentList3);
-  #if NA_STRING_ALWAYS_CACHE == 1
-    naGetStringUTF8Pointer(string);
-  #endif
   return string;
 }
 
@@ -90,9 +87,6 @@ NATEST_DEF NATestUTF8Char* naAllocTestStringWithFormat(const NATestUTF8Char* for
   va_start(argumentList, format);
   string = na_AllocTestStringWithArguments(format, argumentList);
   va_end(argumentList);
-  #if NA_STRING_ALWAYS_CACHE == 1
-    naGetStringUTF8Pointer(string);
-  #endif
   return string;
 }
 

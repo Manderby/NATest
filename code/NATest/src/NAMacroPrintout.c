@@ -12,12 +12,12 @@ const char* na_YesNoStrings[] = {
 
 
 
-#define NA_TEST_MAX_MACRO_LENGTH 40
+#define NATEST_MAX_MACRO_LENGTH 40
 
 NATEST_HDEF void na_PrintMacroHead(const NATestUTF8Char* macroString){
   printf("%s", macroString);
   printf(" ");  // Write at least one space
-  for(size_t c = 0; c < NA_TEST_MAX_MACRO_LENGTH - strlen(macroString) - 1; c++){
+  for(size_t c = 0; c < NATEST_MAX_MACRO_LENGTH - strlen(macroString) - 1; c++){
     printf(" ");
   }
 }
@@ -56,6 +56,14 @@ NATEST_HDEF void na_PrintMacroPlain(const NATestUTF8Char* macroString, const NAT
 NATEST_HDEF void na_PrintMacroInt(const NATestUTF8Char* macroString, int value){
   na_PrintMacroHead(macroString);
   printf("%d", value);
+  printf(NATEST_NL);
+}
+
+
+
+NATEST_HDEF void na_PrintMacroIntHex(const NATestUTF8Char* macroString, int value){
+  na_PrintMacroHead(macroString);
+  printf("0x%x", value);
   printf(NATEST_NL);
 }
 
