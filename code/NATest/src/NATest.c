@@ -76,7 +76,7 @@ NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
   #if defined _WIN32
     TCHAR modulePath[MAX_PATH];
     GetModuleFileName(NULL, modulePath, MAX_PATH);
-    exePath = naNewStringFromSystemString(modulePath);
+    exePath = naAllocStringFromSystemString(modulePath);
   #else
     char pathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t pid = (pid_t)getpid();
@@ -91,7 +91,7 @@ NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
 //    } else {
 //      printf("%s\n", dest);
 //    }
-//    return naNewStringWithFormat("%s", dest);
+//    return naAllocTestStringWithFormat("%s", dest);
   return exePath;
 }
 
@@ -256,7 +256,7 @@ NATEST_DEF NATestBool naStartTesting(
         NATestUTF8Char* argString = naAllocTestStringWithFormat("%s", argv[i]);
         if(argString[0] == '\"'){
           NATestUTF8Char* newArgString = naAllocTestStringDequote(argString);
-//          printf("Quotes detected: %s -> %s\n", naGetStringUTF8Pointer(argString), naGetStringUTF8Pointer(newArgString));
+//          printf("Quotes detected: %s -> %s\n", argString, newArgString);
           free(argString);
           argString = newArgString;
         }
@@ -284,7 +284,7 @@ NATEST_DEF NATestBool naStartTesting(
       securityAttributes.nLength = sizeof(securityAttributes);
       securityAttributes.lpSecurityDescriptor = NULL;
       securityAttributes.bInheritHandle = TRUE;
-    TCHAR* systemCrashLogPath = naAllocSystemStringWithUTF8String(naGetStringUTF8Pointer(crashLogPath));
+    TCHAR* systemCrashLogPath = naAllocSystemStringWithUTF8String(crashLogPath);
     na_Testing->logFile = CreateFile(
       systemCrashLogPath,
       FILE_APPEND_DATA,
@@ -499,7 +499,7 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     PROCESS_INFORMATION processInfo;
 
     // Set the logFile as the output for stdout and stderr
-    naZeron(&startupInfo, sizeof(STARTUPINFOW));
+    memset(&startupInfo, 0, sizeof(STARTUPINFOW));
     startupInfo.cb = sizeof(STARTUPINFOW);
     startupInfo.dwFlags = STARTF_USESTDHANDLES;
     startupInfo.hStdOutput = na_Testing->logFile;
@@ -509,8 +509,8 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_TRUE);
     
     // DO NOT TURN -C OPTION OFF!!!
-    NATestUTF8Char* commandPath = naNewStringWithFormat("\"%s\" -C %s", naGetStringUTF8Pointer(modulePath), naGetStringUTF8Pointer(testPath));
-    TCHAR* systemCommandPath = naAllocSystemStringWithUTF8String(naGetStringUTF8Pointer(commandPath));
+    NATestUTF8Char* commandPath = naAllocTestStringWithFormat("\"%s\" -C %s", modulePath, testPath);
+    TCHAR* systemCommandPath = naAllocSystemStringWithUTF8String(commandPath);
 
     BOOL success = CreateProcess(
       NATEST_NULL,

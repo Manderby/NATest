@@ -22,6 +22,16 @@ NATEST_API NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* input
 NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputString);
 NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8Char* filePath);
 
+#if defined _WIN32
+
+  // Returns a newly allocated memory block containing the system-encoded
+  // string. COPIES ALWAYS!
+  NATEST_API TCHAR* naAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String);
+
+  // Returns a newly allocated memory block containing the utf8-encoded
+  // string. COPIES ALWAYS!
+  NATEST_API NATestUTF8Char* naAllocStringFromSystemString(const TCHAR* systemString);
+#endif
 
 #include "NATestStringII.h"
 

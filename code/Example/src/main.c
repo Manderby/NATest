@@ -162,6 +162,9 @@ int main(int argc, const char **argv){
   naPrintMacroux256(MY_NUMBER);
   naPrintMacroix256(MY_NUMBER);
   
+  printf("Application finished. Press enter.\n");
+  getc(stdin);
+
   return 0;
 }
 

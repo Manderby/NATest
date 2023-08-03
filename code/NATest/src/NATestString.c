@@ -273,6 +273,73 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
 #endif
 
 
+#if defined _WIN32
+  NATEST_DEF wchar_t* naAllocWideCharStringWithUTF8String(const NATestUTF8Char* utf8String){
+    size_t length = strlen(utf8String);
+    size_t wideLength = (size_t)MultiByteToWideChar(CP_UTF8, 0, utf8String, (int)length, NATEST_NULL, 0);
+    wchar_t* outStr = (wchar_t*)malloc(((wideLength + 1) * sizeof(wchar_t)));
+    MultiByteToWideChar(CP_UTF8, 0, utf8String, (int)length, outStr, (int)wideLength);
+    outStr[wideLength] = 0;
+    return outStr;
+  }
+
+  NATEST_DEF char* naAllocAnsiStringWithUTF8String(const NATestUTF8Char* utf8String){
+    size_t length = strlen(utf8String);
+
+    // We have to convert UTF8 first to WideChar, then back to 8 bit Ansi.
+    size_t wideLength = (size_t)MultiByteToWideChar(CP_UTF8, 0, utf8String, (int)length, NATEST_NULL, 0);
+    wchar_t* wstr = malloc(((wideLength + 1) * sizeof(wchar_t)));
+    MultiByteToWideChar(CP_UTF8, 0, utf8String, (int)length, wstr, (int)wideLength);
+    wstr[wideLength] = 0;
+    size_t ansiLength = (size_t)WideCharToMultiByte(CP_ACP, 0, wstr, (int)wideLength, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
+    char* outStr = (char*)malloc(((ansiLength + 1) * sizeof(char)));
+    WideCharToMultiByte(CP_ACP, 0, wstr, (int)wideLength, outStr, (int)ansiLength, NATEST_NULL, NATEST_NULL);
+    free(wstr);
+    outStr[ansiLength] = 0;
+    return outStr;
+  }
+
+  NATEST_DEF TCHAR* naAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String){
+    #ifdef UNICODE
+      return naAllocWideCharStringWithUTF8String(utf8String);
+    #else
+      return naAllocAnsiStringWithUTF8String(utf8String);
+    #endif
+  }
+
+  NATEST_DEF NATestUTF8Char* naAllocStringFromWideCharString(const wchar_t* wcharString){
+    size_t length = wcslen(wcharString);
+    int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
+    NATestUTF8Char* stringBuf = malloc((utf8Length + 1) * sizeof(NATestUTF8Char));
+    WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, stringBuf, (int)utf8Length, NATEST_NULL, NATEST_NULL);
+    return stringBuf;
+  }
+
+  NATEST_DEF NATestUTF8Char* naAllocStringFromAnsiString(const char* ansiString){
+    size_t length = strlen(ansiString);
+    size_t wideLength = (size_t)MultiByteToWideChar(CP_ACP, 0, ansiString, (int)length, NATEST_NULL, 0);
+    wchar_t* wstr = malloc(((wideLength + 1) * sizeof(wchar_t)));
+    MultiByteToWideChar(CP_ACP, 0, ansiString, (int)length, wstr, (int)wideLength);
+    wstr[wideLength] = 0;
+    int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wstr, (int)wideLength, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
+    NATestUTF8Char* stringBuf = (NATestUTF8Char*)malloc(((utf8Length + 1) * sizeof(NATestUTF8Char)));
+    WideCharToMultiByte(CP_UTF8, 0, wstr, (int)wideLength, stringBuf, (int)utf8Length, NATEST_NULL, NATEST_NULL);
+    free(wstr);
+    stringBuf[utf8Length] = '\0';
+    return stringBuf;
+  }
+
+  // Creates a new NAString from a system-encoded string. COPIES ALWAYS!
+  NATEST_DEF NATestUTF8Char* naAllocStringFromSystemString(const TCHAR* systemString){
+    #ifdef UNICODE
+      return naAllocStringFromWideCharString(systemString);
+    #else
+      return naAllocStringFromAnsiString(systemString);
+    #endif
+  }
+
+#endif // _WIN32
+
 // This is free and unencumbered software released into the public domain.
 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
