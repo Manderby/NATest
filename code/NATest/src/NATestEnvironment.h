@@ -38,6 +38,12 @@
 
 
 
+#if defined _WIN32
+  #include <windows.h>
+#endif
+
+
+
 // The newlines used on different systems as utf8 strings.
 #if defined NATEST_C11 || defined NATEST_CPP11
   #define NATEST_NL_UNIX  u8"\n"

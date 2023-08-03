@@ -8,7 +8,6 @@
 #include <time.h>
 #if defined _WIN32
   #include <Tlhelp32.h>
-  #include <windows.h>
 #else
   #include <errno.h>
   #include <libproc.h>

@@ -137,7 +137,7 @@ NATEST_DEF NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* input
     NATestUTF8Char* escape = na_GetCEscapedChar(inputString[i], &charCount);
     if(charCount){
       outString[outIndex] = '\\';
-      strncpy(&outString[outIndex + 1], escape, charCount);
+      memcpy(&outString[outIndex + 1], escape, charCount);
     }else{
       outString[outIndex] = inputString[i];
     }
@@ -154,7 +154,7 @@ NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputS
   NATestUTF8Char* outString = malloc(len - 2 + 1);
     outString[len - 2] = '\0';
 
-  strncpy(outString, &inputString[1], len - 2);
+  memcpy(outString, &inputString[1], len - 2);
   return outString;
 }
 
