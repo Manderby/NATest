@@ -48,9 +48,11 @@
 #if defined NATEST_C11 || defined NATEST_CPP11
   #define NATEST_NL_UNIX  u8"\n"
   #define NATEST_NL_WIN   u8"\r\n"
+  #define NATEST_NORETURN _Noreturn
 #else
   #define NATEST_NL_UNIX  "\n"
   #define NATEST_NL_WIN   "\r\n"
+  #define NATEST_NORETURN
 #endif
 
 
@@ -119,6 +121,19 @@ typedef uint32_t uint32;
   typedef unsigned __int256 uint256;
 #endif
 
+
+
+#define na_TestEmitError(message)\
+  {\
+  fprintf(stderr, "Testing Error: %s\n", message);\
+  }
+
+#define na_TestEmitCrash(message)\
+  {\
+  fprintf(stderr, "Critical Testing Error: %s\n", message);\
+  fprintf(stderr, "Crashing the application deliberatly...\n");\
+  exit(1);\
+  }
 
 
 #endif // NATEST_ENVIRONMENT_INCLUDED

@@ -310,7 +310,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
   NATEST_DEF NATestUTF8Char* naAllocStringFromWideCharString(const wchar_t* wcharString){
     size_t length = wcslen(wcharString);
     int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
-    NATestUTF8Char* stringBuf = malloc((utf8Length + 1) * sizeof(NATestUTF8Char));
+    NATestUTF8Char* stringBuf = malloc((size_t)(utf8Length + 1) * sizeof(NATestUTF8Char));
     WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, stringBuf, (int)utf8Length, NATEST_NULL, NATEST_NULL);
     return stringBuf;
   }
@@ -322,7 +322,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
     MultiByteToWideChar(CP_ACP, 0, ansiString, (int)length, wstr, (int)wideLength);
     wstr[wideLength] = 0;
     int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wstr, (int)wideLength, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
-    NATestUTF8Char* stringBuf = (NATestUTF8Char*)malloc(((utf8Length + 1) * sizeof(NATestUTF8Char)));
+    NATestUTF8Char* stringBuf = (NATestUTF8Char*)malloc(((size_t)(utf8Length + 1) * sizeof(NATestUTF8Char)));
     WideCharToMultiByte(CP_UTF8, 0, wstr, (int)wideLength, stringBuf, (int)utf8Length, NATEST_NULL, NATEST_NULL);
     free(wstr);
     stringBuf[utf8Length] = '\0';

@@ -12,6 +12,10 @@ struct NATestListItem{
 
 NATestListItem* naAllocateTestListItem(void* data){
   NATestListItem* item = (NATestListItem*)malloc(sizeof(NATestListItem));
+  if(!item){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_NULL;
+  }
   item->prev = item;
   item->next = item;
   item->data = data;

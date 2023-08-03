@@ -62,15 +62,6 @@ NATesting* na_Testing = NATEST_NULL;
 
 
 
-void na_TestEmitError(NATestUTF8Char* message){
-  fprintf(stderr, "Testing Error: %s\n", message);
-}
-void na_TestEmitCrash(NATestUTF8Char* message){
-  fprintf(stderr, "Critical Testing Error: %s\n", message);
-  fprintf(stderr, "Crashing the application deliberatly...\n");
-  exit(1);
-}
-
 NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
   NATestUTF8Char* exePath;
   #if defined _WIN32
@@ -222,6 +213,10 @@ NATEST_DEF NATestBool naStartTesting(
 //  }
 
   na_Testing = (NATesting*)malloc(sizeof(NATesting));
+  if(!na_Testing){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_FALSE;
+  }
 
   na_Testing->rootTestData = (NATestData*)malloc(sizeof(NATestData));
   na_InitTestingData(na_Testing->rootTestData, rootName, NATEST_NULL, 0);
@@ -268,6 +263,10 @@ NATEST_DEF NATestBool naStartTesting(
   
   if(naIsTestListEmpty(na_Testing->testRestriction)){
     NATestUTF8Char* star = malloc(2);
+    if(!star){
+      na_TestEmitError("Ran out of memory.");
+      return NATEST_FALSE;
+    }
     star[0] = '*';
     star[1] = '\0';
     NATestListItem* newItem = naAllocateTestListItem(star);
@@ -281,9 +280,12 @@ NATEST_DEF NATestBool naStartTesting(
 
   #if defined _WIN32
     SECURITY_ATTRIBUTES securityAttributes;
-      securityAttributes.nLength = sizeof(securityAttributes);
-      securityAttributes.lpSecurityDescriptor = NULL;
-      securityAttributes.bInheritHandle = TRUE;
+    memset(&securityAttributes, 0, sizeof(SECURITY_ATTRIBUTES));
+
+    securityAttributes.nLength = sizeof(securityAttributes);
+    securityAttributes.lpSecurityDescriptor = NULL;
+    securityAttributes.bInheritHandle = TRUE;
+
     TCHAR* systemCrashLogPath = naAllocSystemStringWithUTF8String(crashLogPath);
     na_Testing->logFile = CreateFile(
       systemCrashLogPath,
@@ -536,12 +538,12 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
 
       if(!testData->success){
-        na_PrintErrorColumn('C', lineNum);
+        na_PrintErrorColumnWithLineNum('C', lineNum);
         printf("No Crash happened in %s" NATEST_NL, expr);
       }
 
     }else{
-      na_PrintErrorColumn('X', lineNum);
+      na_PrintErrorColumnWithLineNum('X', lineNum);
       printf("CreateProcess failed in %s (System error code %d)." NATEST_NL, expr, (int)GetLastError());
     }
 
@@ -719,6 +721,10 @@ NATEST_HDEF NATestBool na_ShallExecuteGroup(const char* name){
       // We arrived at the end of the list. Artificially add an asterix and
       // let the iterator point to this new, last entry.
       NATestUTF8Char* star = malloc(2);
+      if(!star){
+        na_TestEmitError("Ran out of memory.");
+        return NATEST_FALSE;
+      }
       star[0] = '*';
       star[1] = '\0';
       NATestListItem* newItem = naAllocateTestListItem(star);
@@ -800,14 +806,14 @@ NATEST_HDEF double na_GetBenchmarkLimit(){
 
 
 NATEST_HDEF size_t na_GetBenchmarkTestSizeLimit(){
-  return 30;  // in bits
+  return 30;  // in bits. Not more than 32
 }
 
 
 
 NATEST_HDEF void na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum){
   na_PrintLineColumn(lineNum);
-  if(timeDiff < na_GetBenchmarkLimit() || testSize >= (1 << na_GetBenchmarkTestSizeLimit())){
+  if(timeDiff < na_GetBenchmarkLimit() || testSize >= ((size_t)1 << na_GetBenchmarkTestSizeLimit())){
     printf("Immeasurable   : %s" NATEST_NL, exprString);
   }else{
     double execsPerSec = testSize / timeDiff;

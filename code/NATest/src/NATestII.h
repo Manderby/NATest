@@ -40,9 +40,6 @@ NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
 NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum);
 
 
-void na_TestEmitError(NATestUTF8Char* message);
-void na_TestEmitCrash(NATestUTF8Char* message);
-
 
 // Starting and stopping tests
 #define NATEST_START_TEST_CASE\
