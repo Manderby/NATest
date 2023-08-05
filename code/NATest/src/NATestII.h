@@ -98,14 +98,15 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
 
 // Grouping tests
 #define naTestGroup(string)\
-  for(int g = (int)na_StartTestGroup(string, (size_t)__LINE__); g > 0 ; g--, na_StopTestGroup())
+  for(int g = (int)na_StartTestGroup(string, (size_t)__LINE__); g > 0 ; g--, na_StopTestGroup(), na_RevertGroupRestriction())
 
 #define naTestFunction(function)\
   {\
-  if(na_StartTestGroup(#function, (size_t)__LINE__)){\
-    function();\
-    na_StopTestGroup();\
-  }\
+    if(na_StartTestGroup(#function, (size_t)__LINE__)){\
+      function();\
+      na_StopTestGroup();\
+      na_RevertGroupRestriction();\
+    }\
   }
 
 

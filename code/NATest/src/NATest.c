@@ -549,6 +549,9 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       if(!testData->success){
         na_PrintErrorColumnWithLineNum('C', lineNum);
         printf("No Crash happened in %s" NATEST_NL, expr);
+      }else{
+        na_PrintErrorColumnWithLineNum(' ', lineNum);
+        printf("Expected Crash happened in %s" NATEST_NL, expr);
       }
 
     }else{
@@ -727,9 +730,12 @@ NATEST_HDEF NATestBool na_LetCrashTestCrash(){
 
 NATEST_HDEF NATestBool na_ShallExecuteGroup(const char* name){
   const NATestUTF8Char* allowedGroup = (NATestUTF8Char*)na_Testing->restrictionIt->data;
+  size_t nameLength = strlen(name);
+  NATestBool stringsHaveSameLength = nameLength == strlen(allowedGroup);
+  NATestBool isGroupStar = memcmp(allowedGroup, "*", 1) == 0;
   NATestBool shallExecute =
-    (memcmp(allowedGroup, "*", 1) == 0) ||
-    (memcmp(allowedGroup, name, strlen(name)) == 0);
+    isGroupStar ||
+    (stringsHaveSameLength && (memcmp(allowedGroup, name, nameLength) == 0));
   if(shallExecute){
     na_Testing->restrictionIt = na_Testing->restrictionIt->next;
     if(na_Testing->restrictionIt == na_Testing->testRestriction){

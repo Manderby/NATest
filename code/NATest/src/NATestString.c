@@ -337,6 +337,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
     int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
     NATestUTF8Char* stringBuf = malloc((size_t)(utf8Length + 1) * sizeof(NATestUTF8Char));
     WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, stringBuf, (int)utf8Length, NATEST_NULL, NATEST_NULL);
+    stringBuf[utf8Length] = '\0';
     return stringBuf;
   }
 

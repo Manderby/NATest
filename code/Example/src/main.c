@@ -35,10 +35,11 @@ void functionNotCrashing(void){
 void functionCrashing(void){
   printf("Crash imminent...");
   fflush(stdout);
-//  int* badPointer = NATEST_NULL;
-//  *badPointer = 1234;
-//  exit(5);
-  //double d = 0. / 0.;
+  // Something like accessing the null pointer will lead to a crash.
+  int* badPointer = NATEST_NULL;
+  *badPointer = 1234;
+  // Also, any exit code which is not EXIT_SUCCESS counts as a crash.
+  exit(5);
 }
 
 void buggyThings(void){
@@ -168,7 +169,7 @@ int main(int argc, const char **argv){
 //  naPrintMacroix256(MY_NUMBER);
   
   printf("Application finished. Press enter.\n");
-  getc(stdin);
+  (void)getc(stdin);
 
   return 0;
 }
