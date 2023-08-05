@@ -1,22 +1,30 @@
 Quick Start:
 ------------
 
+- Download package
+    git clone https://github.com/Manderby/NATest.git
+   
+- Create a static library and reference it. VisualStudio project is in the
+     code\NATest folder. XCode project is in proj folder.
+
+- Example is provided in the proj folder.
+
+
+
 Description:
 ------------
 
 NATest is a small testing framework for Mac and Windows in the programming
 language C for everyone.
 
-Email: nalib@manderc.com
+Email: natest@manderc.com
 
 
 
 
 Contribute & License:
 ---------------------
-This project has till now not been designed with a community in mind, as it
-has been used as a private engineering code collection. But input is always
-welcome. Write Issues on GitHub or write Emails to nalib@manderc.com.
+Write Issues on GitHub or write Emails to natest@manderc.com.
 
 License: Public Domain
 
