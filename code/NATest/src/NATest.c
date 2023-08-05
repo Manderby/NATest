@@ -436,8 +436,6 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
       printf("%s" NATEST_NL, expr);
     }
   }
-
-  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -468,8 +466,6 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
     na_PrintErrorColumnWithLineNum(' ', lineNum);
     printf("Expected Error in %s" NATEST_NL, expr);
   }
-
-  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -485,8 +481,6 @@ NATEST_HDEF void na_AddTestCrash(const char* expr, size_t lineNum){
   // order to finish the application successfully. If that happens, the
   // process returns a successful return value and the calling process knows
   // that no crash occurred.
-  
-  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -639,7 +633,17 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 
     }else{
       int exitCode;
-      waitpid(childPid, &exitCode, 0);
+      struct rusage usage;
+      wait4(childPid, &exitCode, 0 /*WNOHANG | WUNTRACED*/, &usage);
+
+      NATestBool hasExitedNormally = WIFEXITED(exitCode);
+      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
+//      NATestBool hasBeenStopped = WIFSTOPPED(exitCode);
+      int exitStatus = WEXITSTATUS(exitCode);
+      int signalNum = WTERMSIG(exitCode);
+//      int coreDump = WCOREDUMP(exitCode);
+//      int stopSignalNum = WSTOPSIG(exitCode);
+//      if(hasBeenSignaled && signalNum == SIGQUIT){hasExitedNormally = NATEST_TRUE;}
 
       free(argv[0]);
       i = 2;
@@ -649,11 +653,7 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       }
       free(argv);
 
-      NATestBool hasExitedNormally = WIFEXITED(exitCode);
-//      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
-//      int sigNum = WTERMSIG(exitCode);
-      int exitStatus = WEXITSTATUS(exitCode);
-      testData->success = !hasExitedNormally || exitStatus != EXIT_SUCCESS;
+      testData->success = !hasExitedNormally || hasBeenSignaled;
       na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
 
       // Revert the file descriptors
@@ -744,10 +744,16 @@ NATEST_HDEF NATestBool na_ShallExecuteGroup(const char* name){
       star[1] = '\0';
       NATestListItem* newItem = naAllocateTestListItem(star);
       naAddTestListBefore(na_Testing->testRestriction, newItem);
-      na_Testing->restrictionIt = na_Testing->testRestriction->prev;
+      na_RevertGroupRestriction();
     }
   }
   return shallExecute;
+}
+
+
+
+NATEST_HDEF void na_RevertGroupRestriction(){
+  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
@@ -785,7 +791,6 @@ NATEST_HDEF void na_StopTestGroup(){
 //    na_PrintTestGroup(na_Testing->curTestData, NATEST_TRUE);
 //  }
   na_Testing->curTestData = na_Testing->curTestData->parent;
-  na_Testing->restrictionIt = na_Testing->restrictionIt->prev;
 }
 
 
