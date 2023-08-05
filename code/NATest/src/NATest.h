@@ -35,7 +35,12 @@ NATEST_API void naStopTesting(void);
 // Prints a list of all strings added by calling naUntested.
 NATEST_API void naPrintUntested(void);
 
-// Increments the internal error count. Used for naTestVoid and naTestError.
+// Manually interact with the test cases from outside the testing framework.
+// You can enquiry the status whether a test case is currently running or
+// set the status manually. Additionally, you can increment the internal error
+// count as you like, which is needed for naTestError for example.
+NATEST_API NATestBool naIsTestCaseRunning(void);
+NATEST_API void naSetTestCaseRunning(NATestBool running);
 NATEST_API void naIncErrorCount(void);
 
 // Tests successfully if the given expression evaluates to true.

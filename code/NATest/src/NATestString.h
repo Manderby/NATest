@@ -26,11 +26,11 @@ NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8C
 
   // Returns a newly allocated memory block containing the system-encoded
   // string. COPIES ALWAYS!
-  NATEST_API TCHAR* naAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String);
+  NATEST_API TCHAR* naTestAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String);
 
   // Returns a newly allocated memory block containing the utf8-encoded
   // string. COPIES ALWAYS!
-  NATEST_API NATestUTF8Char* naAllocStringFromSystemString(const TCHAR* systemString);
+  NATEST_API NATestUTF8Char* naAllocTestStringFromSystemString(const TCHAR* systemString);
 #endif
 
 #include "NATestStringII.h"

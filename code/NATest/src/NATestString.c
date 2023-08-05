@@ -43,6 +43,11 @@ NATEST_HDEF NATestUTF8Char* na_AllocSprintf(const NATestUTF8Char* format, ...){
   size_t stringLen = na_VarargStringLength(format, argumentList);
 
   NATestUTF8Char* stringBuf = malloc(stringLen + 1);
+  if(!stringBuf){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_NULL;
+  }
+
   na_Vsnprintf(stringBuf, stringLen + 1, format, argumentList2);
   stringBuf[stringLen] = '\0';
 
@@ -53,6 +58,11 @@ NATEST_HDEF NATestUTF8Char* na_AllocSprintf(const NATestUTF8Char* format, ...){
 
 NATEST_DEF NATestUTF8Char* naAllocTestStringEmpty(){
   NATestUTF8Char* string = malloc(1);
+  if(!string){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_NULL;
+  }
+
   string[0] = '\0';
   return string;
 }
@@ -68,6 +78,11 @@ NATEST_HDEF NATestUTF8Char* na_AllocTestStringWithArguments(const NATestUTF8Char
   size_t stringLen = na_VarargStringLength(format, argumentList2);
   if(stringLen){
     NATestUTF8Char* stringBuf = malloc(stringLen + 1);
+    if(!stringBuf){
+      na_TestEmitError("Ran out of memory.");
+      return NATEST_NULL;
+    }
+
     na_Vsnprintf(stringBuf, stringLen + 1, format, argumentList3);
     stringBuf[stringLen] = '\0';
     string = stringBuf;
@@ -130,6 +145,11 @@ NATEST_DEF NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* input
   NATestUTF8Char* outString = malloc(len + escapeCount + 1);
     outString[len + escapeCount] = '\0';
 
+  if(!outString){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_NULL;
+  }
+
   // Fill the new buffer up with the correct bytes.
   size_t outIndex = 0;
   for(size_t i = 0; i < len; ++i){
@@ -153,6 +173,11 @@ NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputS
   size_t len = strlen(inputString);
   NATestUTF8Char* outString = malloc(len - 2 + 1);
     outString[len - 2] = '\0';
+
+  if(!outString){
+    na_TestEmitError("Ran out of memory.");
+    return NATEST_NULL;
+  }
 
   memcpy(outString, &inputString[1], len - 2);
   return outString;
@@ -274,7 +299,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
 
 
 #if defined _WIN32
-  NATEST_DEF wchar_t* naAllocWideCharStringWithUTF8String(const NATestUTF8Char* utf8String){
+  NATEST_DEF wchar_t* naTestAllocWideCharStringWithUTF8String(const NATestUTF8Char* utf8String){
     size_t length = strlen(utf8String);
     size_t wideLength = (size_t)MultiByteToWideChar(CP_UTF8, 0, utf8String, (int)length, NATEST_NULL, 0);
     wchar_t* outStr = (wchar_t*)malloc(((wideLength + 1) * sizeof(wchar_t)));
@@ -283,7 +308,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
     return outStr;
   }
 
-  NATEST_DEF char* naAllocAnsiStringWithUTF8String(const NATestUTF8Char* utf8String){
+  NATEST_DEF char* naTestAllocAnsiStringWithUTF8String(const NATestUTF8Char* utf8String){
     size_t length = strlen(utf8String);
 
     // We have to convert UTF8 first to WideChar, then back to 8 bit Ansi.
@@ -299,15 +324,15 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
     return outStr;
   }
 
-  NATEST_DEF TCHAR* naAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String){
+  NATEST_DEF TCHAR* naTestAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String){
     #ifdef UNICODE
-      return naAllocWideCharStringWithUTF8String(utf8String);
+      return naTestAllocWideCharStringWithUTF8String(utf8String);
     #else
-      return naAllocAnsiStringWithUTF8String(utf8String);
+      return naTestAllocAnsiStringWithUTF8String(utf8String);
     #endif
   }
 
-  NATEST_DEF NATestUTF8Char* naAllocStringFromWideCharString(const wchar_t* wcharString){
+  NATEST_DEF NATestUTF8Char* naTestAllocStringFromWideCharString(const wchar_t* wcharString){
     size_t length = wcslen(wcharString);
     int utf8Length = WideCharToMultiByte(CP_UTF8, 0, wcharString, (int)length, NATEST_NULL, 0, NATEST_NULL, NATEST_NULL);
     NATestUTF8Char* stringBuf = malloc((size_t)(utf8Length + 1) * sizeof(NATestUTF8Char));
@@ -315,7 +340,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
     return stringBuf;
   }
 
-  NATEST_DEF NATestUTF8Char* naAllocStringFromAnsiString(const char* ansiString){
+  NATEST_DEF NATestUTF8Char* naTestAllocStringFromAnsiString(const char* ansiString){
     size_t length = strlen(ansiString);
     size_t wideLength = (size_t)MultiByteToWideChar(CP_ACP, 0, ansiString, (int)length, NATEST_NULL, 0);
     wchar_t* wstr = malloc(((wideLength + 1) * sizeof(wchar_t)));
@@ -330,11 +355,11 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
   }
 
   // Creates a new NAString from a system-encoded string. COPIES ALWAYS!
-  NATEST_DEF NATestUTF8Char* naAllocStringFromSystemString(const TCHAR* systemString){
+  NATEST_DEF NATestUTF8Char* naAllocTestStringFromSystemString(const TCHAR* systemString){
     #ifdef UNICODE
-      return naAllocStringFromWideCharString(systemString);
+      return naTestAllocStringFromWideCharString(systemString);
     #else
-      return naAllocStringFromAnsiString(systemString);
+      return naTestAllocStringFromAnsiString(systemString);
     #endif
   }
 

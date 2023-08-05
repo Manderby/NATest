@@ -67,7 +67,7 @@ NATEST_HDEF NATestUTF8Char* na_NewTestApplicationPath(void){
   #if defined _WIN32
     TCHAR modulePath[MAX_PATH];
     GetModuleFileName(NULL, modulePath, MAX_PATH);
-    exePath = naAllocStringFromSystemString(modulePath);
+    exePath = naAllocTestStringFromSystemString(modulePath);
   #else
     char pathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t pid = (pid_t)getpid();
@@ -227,7 +227,7 @@ NATEST_DEF NATestBool naStartTesting(
   na_Testing->printAllTestGroups = printAllGroups;
   na_Testing->letCrashTestsCrash = NATEST_FALSE;
   na_Testing->testingStartSuccessful = NATEST_FALSE;
-  na_SetTestCaseRunning(NATEST_FALSE);
+  naSetTestCaseRunning(NATEST_FALSE);
   na_ResetErrorCount();
 
   for(na_Testing->curInIndex = 0; na_Testing->curInIndex < NATEST_INDEX_COUNT; na_Testing->curInIndex++){
@@ -286,7 +286,7 @@ NATEST_DEF NATestBool naStartTesting(
     securityAttributes.lpSecurityDescriptor = NULL;
     securityAttributes.bInheritHandle = TRUE;
 
-    TCHAR* systemCrashLogPath = naAllocSystemStringWithUTF8String(crashLogPath);
+    TCHAR* systemCrashLogPath = naTestAllocSystemStringWithUTF8String(crashLogPath);
     na_Testing->logFile = CreateFile(
       systemCrashLogPath,
       FILE_APPEND_DATA,
@@ -409,6 +409,11 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
     na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  if(!testData){
+    na_TestEmitError("Ran out of memory.");
+    return;
+  }
+
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
   na_Testing->curTestData->childsCount++;
@@ -444,6 +449,11 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
   #endif
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  if(!testData){
+    na_TestEmitError("Ran out of memory.");
+    return;
+  }
+
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
   na_Testing->curTestData->childsCount++;
@@ -486,6 +496,11 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     na_TestEmitCrash("Testing not running. Use naStartTesting.");
 
   NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
+  if(!testData){
+    na_TestEmitError("Ran out of memory.");
+    return;
+  }
+
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
   na_Testing->curTestData->childsCount++;
@@ -512,7 +527,7 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     
     // DO NOT TURN -C OPTION OFF!!!
     NATestUTF8Char* commandPath = naAllocTestStringWithFormat("\"%s\" -C %s", modulePath, testPath);
-    TCHAR* systemCommandPath = naAllocSystemStringWithUTF8String(commandPath);
+    TCHAR* systemCommandPath = naTestAllocSystemStringWithUTF8String(commandPath);
 
     BOOL success = CreateProcess(
       NATEST_NULL,
@@ -674,13 +689,13 @@ NATEST_HDEF void na_RegisterUntested(const char* text){
 
 
 
-NATEST_HDEF NATestBool na_GetTestCaseRunning(){
+NATEST_DEF NATestBool naIsTestCaseRunning(){
   return na_Testing->testCaseRunning;
 }
 
 
 
-NATEST_HDEF void na_SetTestCaseRunning(NATestBool running){
+NATEST_DEF void naSetTestCaseRunning(NATestBool running){
   na_Testing->testCaseRunning = running;
 }
 
