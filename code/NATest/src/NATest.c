@@ -622,11 +622,11 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 //    }
 
     pid_t childPid = fork();
+
     if(!childPid){
 
       // Don't use newly constructed structs of NARuntime here!!!
       // It will cause concurrency errors which are hard to track.
-
       execv(argv[0], argv);
 
       // If reaching here, something went wrong. Return success so that the
@@ -637,16 +637,14 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
     }else{
       int exitCode;
       struct rusage usage;
-      wait4(childPid, &exitCode, 0 /*WNOHANG | WUNTRACED*/, &usage);
-
-      NATestBool hasExitedNormally = WIFEXITED(exitCode);
-      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
-//      NATestBool hasBeenStopped = WIFSTOPPED(exitCode);
-      int exitStatus = WEXITSTATUS(exitCode);
-      int signalNum = WTERMSIG(exitCode);
-//      int coreDump = WCOREDUMP(exitCode);
-//      int stopSignalNum = WSTOPSIG(exitCode);
-//      if(hasBeenSignaled && signalNum == SIGQUIT){hasExitedNormally = NATEST_TRUE;}
+      
+      // Loop by looking for the EINTR signal (system call interrupted). This
+      // is necessary on systems which do not support automatic system call
+      // restart.
+      errno = EINTR;
+      while(errno == EINTR){
+        wait4(childPid, &exitCode, 0 /*WNOHANG | WUNTRACED*/, &usage);
+      }
 
       free(argv[0]);
       i = 2;
@@ -656,7 +654,10 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       }
       free(argv);
 
-      testData->success = !hasExitedNormally || hasBeenSignaled;
+      int exitStatus = WEXITSTATUS(exitCode);
+      NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
+
+      testData->success = hasBeenSignaled || exitStatus != EXIT_SUCCESS;
       na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
 
       // Revert the file descriptors

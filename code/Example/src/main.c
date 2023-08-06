@@ -89,8 +89,7 @@ void benchmarks(void){
   naBenchmark(functionWhichComputesSomething());
 }
 
-int main(int argc, const char **argv){
-
+int main(int argc, const char **argv){ 
   // Start the testing environment.
   NATestBool success = naStartTesting(
     "Example",
