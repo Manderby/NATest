@@ -1,16 +1,3 @@
-Quick Start:
-------------
-
-- Download package
-    git clone https://github.com/Manderby/NATest.git
-   
-- Create a static library and reference it. VisualStudio project is in the
-     code\NATest folder. XCode project is in proj folder.
-
-- Example is provided in the proj folder.
-
-
-
 Description:
 ------------
 
@@ -19,6 +6,20 @@ language C for everyone.
 
 Email: natest@manderc.com
 
+
+
+Quick Start:
+------------
+
+- Download package
+    git clone https://github.com/Manderby/NATest.git
+   
+- Use CMake to build.
+  There is a CMakeLists.txt file in the code/NATest folder.
+  NATest will be built as a static library.
+
+- There is also an example project showing you how to link to the package
+  and how to run tests.
 
 
 
