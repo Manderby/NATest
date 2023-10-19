@@ -13,24 +13,27 @@
 
 
 // Starts and stops the testing. Provide the top name of the code you
-// want to test. The timePerBenchmark denotes the time spent per benchmark
-// case. Usual values are around .01 seconds. Lower values are quicker but
-// less sound. If printAllGroups is false, only the groups which have
-// errors will be printed. A final printout will be made upon stopping.
+// want to test. A final printout will be made upon stopping.
 //
 // Returns true if the testing did start sucessfully, false otherwise.
 // A common reason for an unsuccessful start is to forget the rootName in
 // the command line arguments.
 NATEST_API NATestBool naStartTesting(
   const NATestUTF8Char* rootName,
-  double timePerBenchmark,
-  NATestBool printAllTests,
-  NATestBool printAllGroups,
   int argc,
   const char** argv);
 
 // Stops the testing and prints some final results.
 NATEST_API void naStopTesting(void);
+
+// Defines what the test algorithm will output to the console. By default, all
+// outputs are turned on. If printAllTests is false, only the tests which fail
+// will be printed.
+NATEST_API void naSetTestPrintsAllTests(NATestBool printAllTests);
+
+// Turn on or off error and crash tests. By default, the execution is turned on.
+NATEST_API void naExecuteErrorTests(NATestBool executeErrorTests);
+NATEST_API void naExecuteCrashTests(NATestBool executeCrashTests);
 
 // Prints a list of all strings added by calling naUntested.
 NATEST_API void naPrintUntested(void);
@@ -68,9 +71,12 @@ NATEST_API void naIncErrorCount(void);
 // Use this to mark things untested but not forgotten.
 #define naUntested(text)
 
-// Runs a benchmark of expr as long until the time defined in naStartTesting
-// is reached. Outputs the number of executions per second.
+// Runs a benchmark of expr as long as the time spent per benchmark is reached.
+// Outputs the number of executions per second. You can set the time spent per
+// benchmark case with naSetTimePerBenchmark. Default is .01 seconds. Lower
+// values are quicker but less sound
 #define naBenchmark(expr)
+NATEST_API void naSetTimePerBenchmark(double seconds);
 
 // Evaluates to a uint32 pseudo random number. Use this for test inputs to
 // your benchmark expression.

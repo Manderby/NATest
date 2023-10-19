@@ -32,9 +32,12 @@ NATEST_HAPI NATestBool na_LetCrashTestCrash(void);
 NATEST_HAPI NATestBool na_ShallExecuteGroup(const char* name);
 NATEST_HAPI void       na_RevertGroupRestriction(void);
 
+
+NATEST_HAPI NATestBool na_GetExecuteErrorTests(void);
+NATEST_HAPI NATestBool na_GetExecuteCrashTests(void);
 NATEST_HAPI uint32 na_GetBenchmarkIn(void);
 NATEST_HAPI double na_BenchmarkTime(void);
-NATEST_HAPI double na_GetBenchmarkLimit(void);
+NATEST_HAPI double na_GetTimePerBenchmark(void);
 NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
 NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum);
 
@@ -72,7 +75,7 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
   }
   
 #define naTestError(expr)\
-  if(na_ShallExecuteGroup(#expr)){\
+  if(na_GetExecuteErrorTests() && na_ShallExecuteGroup(#expr)){\
     NATEST_START_TEST_CASE\
     { expr; }\
     NATEST_STOP_TEST_CASE\
@@ -81,7 +84,7 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
   }
 
 #define naTestCrash(expr)\
-  if(na_ShallExecuteGroup(#expr)){\
+  if(na_GetExecuteCrashTests() && na_ShallExecuteGroup(#expr)){\
     if(na_LetCrashTestCrash()){\
       NATEST_START_TEST_CASE\
       { expr; }\
@@ -135,7 +138,7 @@ NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const cha
     endT = na_BenchmarkTime();\
     timeDiff = endT - startT;\
     if(timeDiff < 0.){timeDiff = 0.; break;}\
-    if(timeDiff > na_GetBenchmarkLimit()){break;}\
+    if(timeDiff > na_GetTimePerBenchmark()){break;}\
     testSize <<= 1;\
   }\
   na_PrintBenchmark(timeDiff, testSize * 2, #expr, (size_t)__LINE__);\
