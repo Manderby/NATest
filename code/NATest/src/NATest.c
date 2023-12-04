@@ -327,9 +327,11 @@ NATEST_DEF void naStopTesting(){
       printf("No tests executed." NATEST_NL);
     }else{
       if(na_Testing->rootTestData->success){
-        printf("All test successful." NATEST_NL);
-        na_PrintTestGroup(na_Testing->rootTestData, NATEST_FALSE);
+        printf("SUCCESS" NATEST_NL);
+      }else{
+        printf("FAIL" NATEST_NL);
       }
+      na_PrintTestGroup(na_Testing->rootTestData, NATEST_FALSE);
     }
     printf("Testing finished." NATEST_NL NATEST_NL);
   }
