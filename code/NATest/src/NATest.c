@@ -687,12 +687,12 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       dup(oldStdErr);
       close(oldStdErr);
 
-      if(!testData->success){
-        na_PrintErrorColumnWithLineNum('C', lineNum);
-        printf("No Crash happened in %s" NATEST_NL, expr);
-      }else{
+      if(testData->success && na_Testing->printAllTests){
         na_PrintErrorColumnWithLineNum(' ', lineNum);
         printf("Expected Crash happened in %s" NATEST_NL, expr);
+      }else if(!testData->success){
+        na_PrintErrorColumnWithLineNum('C', lineNum);
+        printf("No Crash happened in %s" NATEST_NL, expr);
       }
     }
     
