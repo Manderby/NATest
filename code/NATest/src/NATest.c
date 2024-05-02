@@ -44,6 +44,8 @@ struct NATesting {
   NATestData* curTestData;
   double timePerBenchmark;
   NATestBool printAllTests;
+  NATestBool printExpression;
+  NATestBool printFullTestGroupName;
   NATestBool executeErrorTests;
   NATestBool executeCrashTests;
   NATestBool testCaseRunning;
@@ -156,9 +158,15 @@ NATEST_HIDEF void na_PrintLineColumn(size_t lineNum){
 
 
 NATEST_HIDEF void na_PrintTestName(NATestData* testData){
-  NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_FALSE);
-  printf("%s", testPath);
-  free(testPath);
+  if(na_Testing->printFullTestGroupName){
+    NATestUTF8Char* testPath = na_NewTestPath(testData, NATEST_FALSE);
+    printf("%s", testPath);
+    free(testPath);
+  }else{
+    NATestUTF8Char* str = naAllocTestStringWithFormat("%s", testData->name);
+    printf("%s", str);
+    free(str);
+  }
 }
 
 
@@ -222,6 +230,8 @@ NATEST_DEF NATestBool naStartTesting(
   na_Testing->curTestData = na_Testing->rootTestData;
   na_Testing->timePerBenchmark = 0.01;
   na_Testing->printAllTests = NATEST_TRUE;
+  na_Testing->printExpression = NATEST_FALSE;
+  na_Testing->printFullTestGroupName = NATEST_TRUE;
   na_Testing->executeErrorTests = NATEST_TRUE;
   na_Testing->executeCrashTests = NATEST_TRUE;
   na_Testing->letCrashTestsCrash = NATEST_FALSE;
@@ -367,6 +377,12 @@ NATEST_DEF void naStopTesting(){
 NATEST_DEF void naSetTestPrintsAllTests(NATestBool printAllTests){
   na_Testing->printAllTests = printAllTests;
 }
+NATEST_DEF void naSetTestPrintsExpression(NATestBool printExpression){
+  na_Testing->printExpression = printExpression;
+}
+NATEST_DEF void naSetTestPrintsFullGroupName(NATestBool printFullTestGroupName){
+  na_Testing->printFullTestGroupName = printFullTestGroupName;
+}
 
 
 
@@ -422,6 +438,16 @@ NATEST_HDEF void na_UpdateTestParentLeaf(
 }
 
 
+NATEST_HDEF void na_FinishOutputLine(NATestBool success, const NATestUTF8Char* expr){
+  if(!success || na_Testing->printAllTests){
+    if(na_Testing->printExpression){
+      printf(": %s" NATEST_NL, expr);
+    }else{
+      printf(NATEST_NL);
+    }
+  }
+}
+
 
 NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum){
   if(!na_Testing)
@@ -448,12 +474,12 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
     na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)success);
     if(success && na_Testing->printAllTests){
       na_PrintErrorColumnWithLineNum(' ', lineNum);
+      printf("Success");
     }else if(!success){
       na_PrintErrorColumnWithLineNum('F', lineNum);
+      printf("Fail");
     }
-    if(!success || na_Testing->printAllTests){
-      printf("%s" NATEST_NL, expr);
-    }
+    na_FinishOutputLine(success, expr);
   }
 }
 
@@ -480,11 +506,12 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
   na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
   if(testData->success && na_Testing->printAllTests){
     na_PrintErrorColumnWithLineNum(' ', lineNum);
-    printf("Expected Error in %s" NATEST_NL, expr);
+    printf("Error acknowledged");
   }else if(!testData->success){
     na_PrintErrorColumnWithLineNum('N', lineNum);
-    printf("No Error raised in %s" NATEST_NL, expr);
+    printf("Error not raised");
   }
+  na_FinishOutputLine(testData->success, expr);
 }
 
 
@@ -567,11 +594,12 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 
       if(testData->success && na_Testing->printAllTests){
         na_PrintErrorColumnWithLineNum(' ', lineNum);
-        printf("Expected Crash happened in %s" NATEST_NL, expr);
+        printf("Crash acknowledged");
       }else if(!testData->success){
         na_PrintErrorColumnWithLineNum('C', lineNum);
-        printf("No Crash happened in %s" NATEST_NL, expr);
+        printf("Crash not happened");
       }
+      na_FinishOutputLine(testData->success, expr);
 
     }else{
       na_PrintErrorColumnWithLineNum('X', lineNum);
@@ -689,11 +717,12 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 
       if(testData->success && na_Testing->printAllTests){
         na_PrintErrorColumnWithLineNum(' ', lineNum);
-        printf("Expected Crash happened in %s" NATEST_NL, expr);
+        printf("Crash acknowledged");
       }else if(!testData->success){
         na_PrintErrorColumnWithLineNum('C', lineNum);
-        printf("No Crash happened in %s" NATEST_NL, expr);
+        printf("Crash not happened");
       }
+      na_FinishOutputLine(testData->success, expr);
     }
     
     free(modulePath);

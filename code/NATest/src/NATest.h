@@ -30,6 +30,12 @@ NATEST_API void naStopTesting(void);
 // outputs are turned on. If printAllTests is false, only the tests which fail
 // will be printed.
 NATEST_API void naSetTestPrintsAllTests(NATestBool printAllTests);
+// Defines whether the expression to be tested will be printed if something is
+// output to the console. By default, printExpression is false.
+NATEST_API void naSetTestPrintsExpression(NATestBool printExpression);
+// Defines whether the test groups shall be printed as the full path. If false,
+// only the bottom-most name is printed. By default, this is set to true.
+NATEST_API void naSetTestPrintsFullGroupName(NATestBool printFullTestGroupName);
 
 // Turn on or off error and crash tests. By default, the execution is turned on.
 NATEST_API void naExecuteErrorTests(NATestBool executeErrorTests);
