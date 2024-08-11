@@ -552,7 +552,7 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
   // test app to execute the test even if it is expected to crash.
 
   #if defined _WIN32
-    STARTUPINFOW startupInfo;
+    STARTUPINFO startupInfo;
     PROCESS_INFORMATION processInfo;
 
     // Set the logFile as the output for stdout and stderr
