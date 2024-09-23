@@ -108,15 +108,19 @@ typedef int16_t  int16;
 typedef uint16_t uint16;
 typedef int32_t  int32;
 typedef uint32_t uint32;
-#ifdef UINT64_MAX
+
+#if defined(UINT64_MAX) && UINT64_MAX == 0xffffffffffffffffuLL
+  #define NATEST_i64_NATIVE
   typedef int64_t  int64;
   typedef uint64_t uint64;
 #endif
 #ifdef __SIZEOF_INT128__
+  #define NATEST_i128_NATIVE
   typedef signed   __int128 int128;
   typedef unsigned __int128 uint128;
 #endif
 #ifdef __SIZEOF_INT256__
+  #define NATEST_i256_NATIVE
   typedef signed   __int256 int256;
   typedef unsigned __int256 uint256;
 #endif

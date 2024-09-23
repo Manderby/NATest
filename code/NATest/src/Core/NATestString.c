@@ -227,7 +227,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
   return na_AllocSprintf("%08x", (int)value);
 }
 
-#ifdef UINT64_MAX
+#ifdef NATEST_i64_NATIVE
   #define naGeti64Hi(i) ((int32)((i) >> 32))
   #define naGeti64Lo(i) ((uint32)i)
   #define naGetu64Hi(u) ((uint32)((u) >> 32))
@@ -245,7 +245,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
   }
 #endif
 
-#ifdef __SIZEOF_INT128__
+#ifdef NATEST_i128_NATIVE
   #define naGeti128Hi(i) ((int64)((i) >> 64))
   #define naGeti128Lo(i) ((uint64)i)
   #define naGetu128Hi(u) ((uint64)((u) >> 64))
@@ -267,7 +267,7 @@ NATEST_DEF NATestUTF8Char* naTestPriix32(int32 value){
   }
 #endif
 
-#ifdef __SIZEOF_INT256__
+#ifdef NATEST_i256_NATIVE
   #define naGeti128Hi(i) ((int128)((i) >> 128))
   #define naGeti128Lo(i) ((uint128)i)
   #define naGetu128Hi(u) ((uint128)((u) >> 128))

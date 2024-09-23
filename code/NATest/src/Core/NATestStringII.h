@@ -11,7 +11,7 @@
 
 
 
-#ifdef UINT64_MAX
+#ifdef NATEST_i64_NATIVE
   NATEST_API NATestUTF8Char* naTestPriux64 (uint64 value);
   NATEST_API NATestUTF8Char* naTestPriix64 (int64  value);
   #define naTestPriux64(value) naTestPriux64(value)
@@ -23,7 +23,7 @@
   #define naTestPriix64(value) naTestPriix64()
 #endif
 
-#ifdef __SIZEOF_INT128__
+#ifdef NATEST_i128_NATIVE
   NATEST_API NATestUTF8Char* naTestPriux128 (uint128 value);
   NATEST_API NATestUTF8Char* naTestPriix128 (int128  value);
   #define naTestPriux128(value) naTestPriux128(value)
@@ -35,7 +35,7 @@
   #define naTestPriix128(value) naTestPriix128()
 #endif
 
-#ifdef __SIZEOF_INT256__
+#ifdef NATEST_i256_NATIVE
   NATEST_API NATestUTF8Char* naTestPriux256 (uint256 value);
   NATEST_API NATestUTF8Char* naTestPriix256 (int256  value);
   #define naTestPriux256(value) naTestPriux256(value)

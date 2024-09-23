@@ -5,8 +5,13 @@
   extern "C"{
 #endif
 
+
+
 // All necessary includes and definitions.
-#include "NATestEnvironment.h"
+#include "Core/NATestEnvironment.h"
+
+
+
 // Also include the macro printouts for convenience.
 #include "NAMacroPrintout.h"
 
@@ -80,7 +85,7 @@ NATEST_API void naIncErrorCount(void);
 // Runs a benchmark of expr as long as the time spent per benchmark is reached.
 // Outputs the number of executions per second. You can set the time spent per
 // benchmark case with naSetTimePerBenchmark. Default is .01 seconds. Lower
-// values are quicker but less sound
+// values are quicker but less sound.
 #define naBenchmark(expr)
 NATEST_API void naSetTimePerBenchmark(double seconds);
 
@@ -91,7 +96,7 @@ NATEST_API void naSetTimePerBenchmark(double seconds);
 
 
 // Inline implementations are in a separate file:
-#include "NATestII.h"
+#include "Core/NATestII.h"
 
 
 

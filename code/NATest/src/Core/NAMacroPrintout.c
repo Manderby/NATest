@@ -55,26 +55,10 @@ NATEST_HDEF void na_PrintMacroPlain(const NATestUTF8Char* macroString, const NAT
 
 
 
-NATEST_HDEF void na_PrintMacroInt(const NATestUTF8Char* macroString, int value){
+NATEST_HDEF void na_PrintMacroInt(const NATestUTF8Char* macroString, int value, NATestBool hex){
   na_PrintMacroHead(macroString);
-  printf("%d", value);
-  printf(NATEST_NL);
-}
-
-
-
-NATEST_HDEF void na_PrintMacroIntHex(const NATestUTF8Char* macroString, int value){
-  na_PrintMacroHead(macroString);
-  printf("0x%x", value);
-  printf(NATEST_NL);
-}
-
-
-
-NATEST_HDEF void na_PrintMacroIntSpecial(const NATestUTF8Char* macroString, int value, int specialValue, const NATestUTF8Char* specialString){
-  na_PrintMacroHead(macroString);
-  if(value == specialValue){
-    printf("%d (%s)", value, specialString);
+  if(hex) {
+    printf("0x%x", value);
   }else{
     printf("%d", value);
   }
@@ -83,12 +67,20 @@ NATEST_HDEF void na_PrintMacroIntSpecial(const NATestUTF8Char* macroString, int 
 
 
 
-NATEST_HDEF void na_PrintMacroIntSpecialHex(const NATestUTF8Char* macroString, int value, int specialValue, const NATestUTF8Char* specialString){
+NATEST_HDEF void na_PrintMacroIntSpecial(const NATestUTF8Char* macroString, int value, int specialValue, const NATestUTF8Char* specialString, NATestBool hex){
   na_PrintMacroHead(macroString);
-  if(value == specialValue){
-    printf("0x%x (%s)", value, specialString);
+  if(hex) {
+    if(value == specialValue){
+      printf("0x%x (%s)", value, specialString);
+    }else{
+      printf("0x%x", value);
+    }
   }else{
-    printf("0x%x", value);
+    if(value == specialValue){
+      printf("%d (%s)", value, specialString);
+    }else{
+      printf("%d", value);
+    }
   }
   printf(NATEST_NL);
 }
@@ -144,7 +136,7 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   printf(NATEST_NL);
 }
 
-#ifdef UINT64_MAX
+#ifdef NATEST_i64_NATIVE
   NATEST_HDEF void na_PrintMacroux64(const NATestUTF8Char* macroString, uint64 value){
     na_PrintMacroHead(macroString);
     NATestUTF8Char* valueString = naTestPriux64(value);
@@ -172,7 +164,7 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   }
 #endif
 
-#ifdef __SIZEOF_INT128__
+#ifdef NATEST_i128_NATIVE
   NATEST_HDEF void na_PrintMacroux128(const NATestUTF8Char* macroString, uint128 value){
     na_PrintMacroHead(macroString);
     NATestUTF8Char* valueString = naTestPriux128(value);
@@ -200,7 +192,7 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   }
 #endif
 
-#ifdef __SIZEOF_INT256__
+#ifdef NATEST_i256_NATIVE
   NATEST_HDEF void na_PrintMacroux256(const NATestUTF8Char* macroString, uint256 value){
     na_PrintMacroHead(macroString);
     NATestUTF8Char* valueString = naTestPriux256(value);

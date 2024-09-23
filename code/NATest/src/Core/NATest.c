@@ -1,5 +1,5 @@
 
-#include "NATest.h"
+#include "../NATest.h"
 #include "NATestString.h"
 #include "NATestList.h"
 

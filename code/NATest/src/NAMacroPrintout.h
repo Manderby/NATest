@@ -20,12 +20,12 @@
 
 
 // Prints the value of the macro as as simple decimal integer.
-#define naPrintMacroInt(macro)
+#define naPrintMacroInt   (macro)
 #define naPrintMacroIntHex(macro)
 
 // Prints the value of the macro as a decimal or hexadecimal integer but
 // outputs the given string if the given special value occurs.
-#define naPrintMacroIntSpecial(macro, specialValue, specialString)
+#define naPrintMacroIntSpecial   (macro, specialValue, specialString)
 #define naPrintMacroIntSpecialHex(macro, specialValue, specialString)
 
 // Prints the value of the macro as Yes (1) or No (0)
@@ -53,7 +53,7 @@
 
 
 // Actual implementations are in this file:
-#include "NAMacroPrintoutII.h"
+#include "Core/NAMacroPrintoutII.h"
 
 
 
