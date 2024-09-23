@@ -31,7 +31,6 @@ struct NATestData {
   size_t lineNum;
   NATestBool success;
   NATestListItem* childs;
-  size_t childsCount;
   size_t childSuccessCount;
   size_t leafSuccessCount;
   size_t totalLeafCount;
@@ -53,7 +52,6 @@ struct NATesting {
   NATestBool testingStartSuccessful;
   size_t errorCount;
   NATestListItem* untestedStrings;
-  size_t untestedStringsCount;
   NATestListItem* testRestriction;
   NATestListItem* restrictionIt;
   size_t curInIndex;
@@ -96,7 +94,6 @@ NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NAT
   testData->lineNum = lineNum;
   testData->success = NATEST_TRUE;
   testData->childs = naAllocateTestListItem(NATEST_NULL);
-  testData->childsCount = 0;
   testData->childSuccessCount = 0;
   testData->leafSuccessCount = 0;
   testData->totalLeafCount = 0;
@@ -106,11 +103,12 @@ NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NAT
 
 
 NATEST_HIDEF void na_ClearTestingData(NATestData* testData){
-  while(testData->childsCount){
-    NATestListItem* lastItem = testData->childs->prev;
+  NATestListItem* lastItem = testData->childs->prev;
+  while(lastItem != testData->childs){
+    NATestListItem* prevItem = lastItem->prev;
     na_ClearTestingData(lastItem->data);
     naDeallocateTestListItem(lastItem);
-    testData->childsCount--;
+    lastItem = prevItem;
   }
   free(testData->childs);
 }
@@ -188,17 +186,9 @@ NATEST_HIDEF void na_PrintTestGroup(NATestData* testData, NATestBool printName){
     na_PrintTestName(na_Testing->curTestData);
     printf(" ");
   }
-  if(testData->totalLeafCount == testData->childsCount){
-    printf("%zd / %zd Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
-    na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
-    printf(NATEST_NL);
-  }else{
-    printf("%zd / %zd Groups ok", testData->childSuccessCount, testData->childsCount);
-    na_PrintRatio(testData->childSuccessCount, testData->childsCount);
-    printf(", %zd / %zd Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
-    na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
-    printf(NATEST_NL);
-  }
+  printf("%zd / %zd Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
+  na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
+  printf(NATEST_NL);
 }
 
 
@@ -244,7 +234,6 @@ NATEST_DEF NATestBool naStartTesting(
   }
 
   na_Testing->untestedStrings = naAllocateTestListItem(NATEST_NULL);
-  na_Testing->untestedStringsCount = 0;
   na_Testing->testRestriction = naAllocateTestListItem(NATEST_NULL);
 
   if(argc > 1){
@@ -349,18 +338,22 @@ NATEST_DEF void naStopTesting(){
   na_ClearTestingData(na_Testing->rootTestData);
   free(na_Testing->rootTestData);
   
-  while(na_Testing->untestedStringsCount){
-    NATestListItem* lastItem = na_Testing->untestedStrings->prev;
-    naDeallocateTestListItem(lastItem);
-    na_Testing->untestedStringsCount--;
+  NATestListItem* lastUntestedItem = na_Testing->untestedStrings->prev;
+  while(lastUntestedItem != na_Testing->untestedStrings){
+    NATestListItem* prevItem = lastUntestedItem->prev;
+    naDeallocateTestListItem(lastUntestedItem);
+    lastUntestedItem = prevItem;
   }
   free(na_Testing->untestedStrings);
 
   na_Testing->restrictionIt = NATEST_NULL;
-  while(!naIsTestListEmpty(na_Testing->testRestriction)){
-    naDeallocateTestListItem(na_Testing->testRestriction->next);
+  NATestListItem* lastRestrictionItem = na_Testing->testRestriction->prev;
+  while(lastRestrictionItem != na_Testing->testRestriction){
+    NATestListItem* prevItem = lastRestrictionItem->prev;
+    naDeallocateTestListItem(lastRestrictionItem);
+    lastRestrictionItem = prevItem;
   }
-  naDeallocateTestListItem(na_Testing->testRestriction);
+  free(na_Testing->testRestriction);
 
   #if defined _WIN32
     CloseHandle(na_Testing->logFile);
@@ -401,10 +394,10 @@ NATEST_HDEF NATestBool na_GetExecuteCrashTests(){
 
 
 NATEST_DEF void naPrintUntested(void){
-  if(!na_Testing->untestedStringsCount){
+  if(naIsTestListEmpty(na_Testing->untestedStrings)){
     printf(NATEST_NL "No untested functionality." NATEST_NL);
   }else{
-    printf(NATEST_NL "Untested functionality (%zd):" NATEST_NL, na_Testing->untestedStringsCount);
+    printf(NATEST_NL "Untested functionality:" NATEST_NL);
     NATestListItem* cur = na_Testing->untestedStrings->next;
     while(cur != na_Testing->untestedStrings){
       const NATestUTF8Char* string = (const NATestUTF8Char*)cur->data;
@@ -461,7 +454,6 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
 
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
-  na_Testing->curTestData->childsCount++;
   
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   if(na_GetErrorCount() > 0){
@@ -499,7 +491,6 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
 
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
-  na_Testing->curTestData->childsCount++;
 
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   testData->success = na_GetErrorCount() != 0;
@@ -543,7 +534,6 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
 
   NATestListItem* newItem = naAllocateTestListItem(testData);
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
-  na_Testing->curTestData->childsCount++;
 
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
 
@@ -736,7 +726,6 @@ NATEST_HDEF void na_RegisterUntested(const char* text){
   NATestUTF8Char* string = naAllocTestStringWithFormat("%s", text);
   NATestListItem* newItem = naAllocateTestListItem(string);
   naAddTestListBefore(na_Testing->untestedStrings, newItem);
-  na_Testing->untestedStringsCount++;
 }
 
 
@@ -823,7 +812,6 @@ NATEST_HDEF NATestBool na_StartTestGroup(const char* name, size_t lineNum){
     NATestData* testData = (NATestData*)malloc(sizeof(NATestData));
     NATestListItem* newItem = naAllocateTestListItem(testData);
     naAddTestListBefore(na_Testing->curTestData->childs, newItem);
-    na_Testing->curTestData->childsCount++;
 
     na_InitTestingData(testData, name, na_Testing->curTestData, lineNum);
     na_Testing->curTestData->childSuccessCount++;
