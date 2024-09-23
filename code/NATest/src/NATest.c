@@ -30,9 +30,9 @@ struct NATestData {
   const char* name;
   size_t lineNum;
   NATestBool success;
+  NATestBool nameHasBeenPrinted;
   NATestListItem* childs;
-  size_t childSuccessCount;
-  size_t leafSuccessCount;
+  size_t leafFailCount;
   size_t totalLeafCount;
   NATestData* parent;
 };
@@ -93,9 +93,9 @@ NATEST_HIDEF void na_InitTestingData(NATestData* testData, const char* name, NAT
   testData->name = name;
   testData->lineNum = lineNum;
   testData->success = NATEST_TRUE;
+  testData->nameHasBeenPrinted = NATEST_FALSE;
   testData->childs = naAllocateTestListItem(NATEST_NULL);
-  testData->childSuccessCount = 0;
-  testData->leafSuccessCount = 0;
+  testData->leafFailCount = 0;
   testData->totalLeafCount = 0;
   testData->parent = parent;
 }
@@ -186,8 +186,10 @@ NATEST_HIDEF void na_PrintTestGroup(NATestData* testData, NATestBool printName){
     na_PrintTestName(na_Testing->curTestData);
     printf(" ");
   }
-  printf("%zd / %zd Tests ok", testData->leafSuccessCount, testData->totalLeafCount);
-  na_PrintRatio(testData->leafSuccessCount, testData->totalLeafCount);
+  
+  size_t successCount = testData->totalLeafCount - testData->leafFailCount;
+  printf("%zd / %zd Tests ok", successCount, testData->totalLeafCount);
+  na_PrintRatio(successCount, testData->totalLeafCount);
   printf(NATEST_NL);
 }
 
@@ -410,22 +412,25 @@ NATEST_DEF void naPrintUntested(void){
 }
 
 
+NATEST_HAPI void na_printTestGroup(NATestData* curTestData);
 
-NATEST_HDEF void na_UpdateTestParentLeaf(
+
+// Propagates the result of a test through the hierarchy.
+NATEST_HDEF void na_PropagateTestResult(
   NATestData* testData,
   NATestBool leafSuccess)
 {
   if(testData->parent){
-    na_UpdateTestParentLeaf(testData->parent, leafSuccess);
+    na_PropagateTestResult(testData->parent, leafSuccess);
   }
 
   testData->totalLeafCount++;
-  if(leafSuccess){
-    testData->leafSuccessCount++;
-  }else{
-    if(testData->success && testData->parent){
-      testData->parent->childSuccessCount--;
+  
+  if(!leafSuccess){
+    if(!testData->nameHasBeenPrinted) {
+      na_printTestGroup(testData);
     }
+    testData->leafFailCount++;
     testData->success = NATEST_FALSE;
   }
 }
@@ -457,13 +462,11 @@ NATEST_HDEF void na_AddTest(const char* expr, NATestBool success, size_t lineNum
   
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
   if(na_GetErrorCount() > 0){
-    testData->success = NATEST_FALSE;
-    na_UpdateTestParentLeaf(na_Testing->curTestData, NATEST_FALSE);
+    na_PropagateTestResult(na_Testing->curTestData, NATEST_FALSE);
     na_PrintErrorColumnWithLineNum('E', lineNum);
     printf("%zd errors occured in %s" NATEST_NL, na_GetErrorCount(), expr);
   }else{
-    testData->success = (NATestBool)success;
-    na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)success);
+    na_PropagateTestResult(na_Testing->curTestData, (NATestBool)success);
     if(success && na_Testing->printAllTests){
       na_PrintErrorColumnWithLineNum(' ', lineNum);
       printf("Success");
@@ -493,16 +496,16 @@ NATEST_HDEF void na_AddTestError(const char* expr, size_t lineNum){
   naAddTestListBefore(na_Testing->curTestData->childs, newItem);
 
   na_InitTestingData(testData, expr, na_Testing->curTestData, lineNum);
-  testData->success = na_GetErrorCount() != 0;
-  na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
-  if(testData->success && na_Testing->printAllTests){
+  NATestBool success = na_GetErrorCount() != 0;
+  na_PropagateTestResult(na_Testing->curTestData, success);
+  if(success && na_Testing->printAllTests){
     na_PrintErrorColumnWithLineNum(' ', lineNum);
     printf("Error acknowledged");
-  }else if(!testData->success){
+  }else if(!success){
     na_PrintErrorColumnWithLineNum('N', lineNum);
     printf("Error not raised");
   }
-  na_FinishOutputLine(testData->success, expr);
+  na_FinishOutputLine(success, expr);
 }
 
 
@@ -579,17 +582,17 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       GetExitCodeProcess(processInfo.hProcess, &exitCode);
       CloseHandle(processInfo.hThread);
 
-      testData->success = exitCode != EXIT_SUCCESS;
-      na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
+      NATestBool success = exitCode != EXIT_SUCCESS;
+      na_PropagateTestResult(na_Testing->curTestData, success);
 
-      if(testData->success && na_Testing->printAllTests){
+      if(success && na_Testing->printAllTests){
         na_PrintErrorColumnWithLineNum(' ', lineNum);
         printf("Crash acknowledged");
-      }else if(!testData->success){
+      }else if(!success){
         na_PrintErrorColumnWithLineNum('C', lineNum);
         printf("Crash not happened");
       }
-      na_FinishOutputLine(testData->success, expr);
+      na_FinishOutputLine(success, expr);
 
     }else{
       na_PrintErrorColumnWithLineNum('X', lineNum);
@@ -694,8 +697,8 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       int exitStatus = WEXITSTATUS(exitCode);
       NATestBool hasBeenSignaled = WIFSIGNALED(exitCode);
 
-      testData->success = hasBeenSignaled || exitStatus != EXIT_SUCCESS;
-      na_UpdateTestParentLeaf(na_Testing->curTestData, (NATestBool)testData->success);
+      NATestBool success = hasBeenSignaled || exitStatus != EXIT_SUCCESS;
+      na_PropagateTestResult(na_Testing->curTestData, success);
 
       // Revert the file descriptors
       close(1);
@@ -705,14 +708,14 @@ NATEST_HDEF void na_ExecuteCrashProcess(const char* expr, size_t lineNum){
       dup(oldStdErr);
       close(oldStdErr);
 
-      if(testData->success && na_Testing->printAllTests){
+      if(success && na_Testing->printAllTests){
         na_PrintErrorColumnWithLineNum(' ', lineNum);
         printf("Crash acknowledged");
-      }else if(!testData->success){
+      }else if(!success){
         na_PrintErrorColumnWithLineNum('C', lineNum);
         printf("Crash not happened");
       }
-      na_FinishOutputLine(testData->success, expr);
+      na_FinishOutputLine(success, expr);
     }
     
     free(modulePath);
@@ -802,6 +805,15 @@ NATEST_HDEF void na_RevertGroupRestriction(){
 
 
 
+NATEST_HDEF void na_printTestGroup(NATestData* curTestData) {
+  printf("-- ");
+  na_PrintTestName(curTestData);
+  printf(NATEST_NL);
+  curTestData->nameHasBeenPrinted = NATEST_TRUE;
+}
+
+
+
 NATEST_HDEF NATestBool na_StartTestGroup(const char* name, size_t lineNum){
   if(!na_Testing)
     na_TestEmitCrash("Testing not running. Use naStartTesting.");
@@ -814,12 +826,11 @@ NATEST_HDEF NATestBool na_StartTestGroup(const char* name, size_t lineNum){
     naAddTestListBefore(na_Testing->curTestData->childs, newItem);
 
     na_InitTestingData(testData, name, na_Testing->curTestData, lineNum);
-    na_Testing->curTestData->childSuccessCount++;
     na_Testing->curTestData = testData;
 
-    printf("-- ");
-    na_PrintTestName(na_Testing->curTestData);
-    printf(NATEST_NL);
+    if(na_Testing->printAllTests) {
+      na_printTestGroup(na_Testing->curTestData);
+    }
   }
   return shallExecute;
 }

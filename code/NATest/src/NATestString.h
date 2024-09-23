@@ -23,7 +23,6 @@ NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputS
 NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8Char* filePath);
 
 #if defined _WIN32
-
   // Returns a newly allocated memory block containing the system-encoded
   // string. COPIES ALWAYS!
   NATEST_API TCHAR* naTestAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String);

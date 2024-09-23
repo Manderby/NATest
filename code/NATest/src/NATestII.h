@@ -32,18 +32,17 @@ NATEST_HAPI NATestBool na_LetCrashTestCrash(void);
 NATEST_HAPI NATestBool na_ShallExecuteGroup(const char* name);
 NATEST_HAPI void       na_RevertGroupRestriction(void);
 
-
 NATEST_HAPI NATestBool na_GetExecuteErrorTests(void);
 NATEST_HAPI NATestBool na_GetExecuteCrashTests(void);
-NATEST_HAPI uint32 na_GetBenchmarkIn(void);
-NATEST_HAPI double na_BenchmarkTime(void);
-NATEST_HAPI double na_GetTimePerBenchmark(void);
-NATEST_HAPI size_t na_GetBenchmarkTestSizeLimit(void);
-NATEST_HAPI void   na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum);
+NATEST_HAPI uint32     na_GetBenchmarkIn(void);
+NATEST_HAPI double     na_BenchmarkTime(void);
+NATEST_HAPI double     na_GetTimePerBenchmark(void);
+NATEST_HAPI size_t     na_GetBenchmarkTestSizeLimit(void);
+NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const char* exprString, size_t lineNum);
 
 
 
-// Starting and stopping tests
+// Starting and stopping test cases
 #define NATEST_START_TEST_CASE\
   if(naIsTestCaseRunning())\
     na_TestEmitError("A test case is already running. This might lead to bad test results.");\
