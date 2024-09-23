@@ -70,7 +70,7 @@ NATEST_API void naIncErrorCount(void);
 // Tests successfully if the expression would crash the application.
 #define naTestCrash(expr)
 
-// Groups together tests. Use it like naTestGroup("Multiple Tests"){ ... }
+// Groups together tests. Use it like naTestGroup("Multiple Tests") { ... }
 #define naTestGroup(string)
 
 // Groups together tests by calling the given function.

@@ -97,6 +97,7 @@
 #define NATEST_TRUE       1
 #define NATEST_MAX_u8     0xff
 #define NATEST_MAX_u16    0xffff
+#define NATEST_MAX_u32    0xffffffff
 #define NATEST_UNUSED(x)  (void)(x)
 
 typedef void     (*NATestMutator)(void*);

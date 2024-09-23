@@ -1,20 +1,7 @@
 
 #include "NATestEnvironment.h"
 
-// Returns an allocated string of a hex representation of the given value.
-NATEST_API NATestUTF8Char* naTestPriux8  (uint8  value);
-NATEST_API NATestUTF8Char* naTestPriix8  (int8   value);
-NATEST_API NATestUTF8Char* naTestPriux16 (uint16 value);
-NATEST_API NATestUTF8Char* naTestPriix16 (int16  value);
-NATEST_API NATestUTF8Char* naTestPriux32 (uint32 value);
-NATEST_API NATestUTF8Char* naTestPriix32 (int32  value);
-#define naTestPriux64(value)
-#define naTestPriix64(value)
-#define naTestPriux128(value)
-#define naTestPriix128(value)
-#define naTestPriux256(value)
-#define naTestPriix256(value)
-
+NATEST_HAPI NATestUTF8Char* na_AllocSprintf(const NATestUTF8Char* format, ...);
 
 NATEST_API NATestUTF8Char* naAllocTestStringEmpty(void);
 NATEST_API NATestUTF8Char* naAllocTestStringWithFormat(const NATestUTF8Char* format, ...);
@@ -31,8 +18,6 @@ NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8C
   // string. COPIES ALWAYS!
   NATEST_API NATestUTF8Char* naAllocTestStringFromSystemString(const TCHAR* systemString);
 #endif
-
-#include "NATestStringII.h"
 
 
 

@@ -10,9 +10,9 @@ struct NATestListItem{
 
 
 
-NATestListItem* naAllocateTestListItem(void* data){
+NATestListItem* naAllocateTestListItem(void* data) {
   NATestListItem* item = (NATestListItem*)malloc(sizeof(NATestListItem));
-  if(!item){
+  if(!item) {
     na_TestEmitError("Ran out of memory.");
     return NATEST_NULL;
   }
@@ -22,18 +22,18 @@ NATestListItem* naAllocateTestListItem(void* data){
   return item;
 }
 
-void naDeallocateTestListItem(NATestListItem* item){
+void naDeallocateTestListItem(NATestListItem* item) {
   item->prev->next = item->next;
   item->next->prev = item->prev;
   free(item->data);
   free(item);
 }
 
-NATestBool naIsTestListEmpty(NATestListItem* item){
+NATestBool naIsTestListEmpty(NATestListItem* item) {
   return item->next == item;
 }
 
-void naAddTestListBefore(NATestListItem* thisItem, NATestListItem* item){
+void naAddTestListBefore(NATestListItem* thisItem, NATestListItem* item) {
   item->prev = thisItem->prev;
   item->next = thisItem;
   thisItem->prev->next = item;

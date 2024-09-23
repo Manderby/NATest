@@ -25,7 +25,6 @@ set(coreSourceFiles
   src/Core/NATestList.h
   src/Core/NATestString.c
   src/Core/NATestString.h
-  src/Core/NATestStringII.h
 )
 
 source_group("" FILES ${sourceFiles})

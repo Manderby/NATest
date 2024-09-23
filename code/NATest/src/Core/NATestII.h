@@ -56,7 +56,7 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
 
 // Testing expressions
 #define naTest(expr)\
-  if(na_ShallExecuteGroup(#expr)){\
+  if(na_ShallExecuteGroup(#expr)) {\
     NATEST_START_TEST_CASE\
     NATestBool success = expr;\
     NATEST_STOP_TEST_CASE\
@@ -65,7 +65,7 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
   }
 
 #define naTestVoid(expr)\
-  if(na_ShallExecuteGroup(#expr)){\
+  if(na_ShallExecuteGroup(#expr)) {\
     NATEST_START_TEST_CASE\
     expr;\
     NATEST_STOP_TEST_CASE\
@@ -74,7 +74,7 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
   }
   
 #define naTestError(expr)\
-  if(na_GetExecuteErrorTests() && na_ShallExecuteGroup(#expr)){\
+  if(na_GetExecuteErrorTests() && na_ShallExecuteGroup(#expr)) {\
     NATEST_START_TEST_CASE\
     { expr; }\
     NATEST_STOP_TEST_CASE\
@@ -83,8 +83,8 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
   }
 
 #define naTestCrash(expr)\
-  if(na_GetExecuteCrashTests() && na_ShallExecuteGroup(#expr)){\
-    if(na_LetCrashTestCrash()){\
+  if(na_GetExecuteCrashTests() && na_ShallExecuteGroup(#expr)) {\
+    if(na_LetCrashTestCrash()) {\
       NATEST_START_TEST_CASE\
       { expr; }\
       NATEST_STOP_TEST_CASE\
@@ -104,7 +104,7 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
 
 #define naTestFunction(function)\
   {\
-    if(na_StartTestGroup(#function, (size_t)__LINE__)){\
+    if(na_StartTestGroup(#function, (size_t)__LINE__)) {\
       function();\
       na_StopTestGroup();\
       na_RevertGroupRestriction();\
@@ -128,16 +128,16 @@ NATEST_HAPI void       na_PrintBenchmark(double timeDiff, size_t testSize, const
   double startT = na_BenchmarkTime();\
   double endT;\
   /* The number of tested expressions doubles every loop. */\
-  for(pow = 0; pow < na_GetBenchmarkTestSizeLimit(); pow++){\
-    for(size_t testRun = 0; testRun < testSize; testRun++){\
+  for(pow = 0; pow < na_GetBenchmarkTestSizeLimit(); pow++) {\
+    for(size_t testRun = 0; testRun < testSize; testRun++) {\
       {\
         (void)expr; (void)0;\
       }\
     }\
     endT = na_BenchmarkTime();\
     timeDiff = endT - startT;\
-    if(timeDiff < 0.){timeDiff = 0.; break;}\
-    if(timeDiff > na_GetTimePerBenchmark()){break;}\
+    if(timeDiff < 0.) {timeDiff = 0.; break;}\
+    if(timeDiff > na_GetTimePerBenchmark()) {break;}\
     testSize <<= 1;\
   }\
   na_PrintBenchmark(timeDiff, testSize * 2, #expr, (size_t)__LINE__);\
