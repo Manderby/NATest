@@ -42,12 +42,12 @@ NATEST_HAPI void na_PrintMacroPlain(
   na_PrintMacroPlain(\
     #macro,\
     NATEST_STRINGIFY(macro),\
-    NATEST_FALSE)
+    NATEST_TRUE)
 #define naPrintMacroDefined(macro)\
   na_PrintMacroPlain(\
     #macro,\
     NATEST_STRINGIFY(macro),\
-    NATEST_TRUE)
+    NATEST_FALSE)
   
 NATEST_HAPI void na_PrintMacroInt(
   const NATestUTF8Char* macroString,
