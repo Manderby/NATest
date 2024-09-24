@@ -112,10 +112,10 @@ NATEST_HDEF void na_PrintAndFreeHexString(NATestUTF8Char* hexString) {
 
 
 
-NATEST_DEF NATestUTF8Char* na_TestPriux8(uint16 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriux8(uint16 value) {
   return na_AllocSprintf("%02x", (int)(value & NATEST_MAX_u8));
 }
-NATEST_DEF NATestUTF8Char* na_TestPriix8(int16 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriix8(int16 value) {
   return na_AllocSprintf("%02x", (int)(value & NATEST_MAX_u8));
 }
 NATEST_HDEF void na_PrintMacroux8(const NATestUTF8Char* macroString, uint8 value) {
@@ -129,10 +129,10 @@ NATEST_HDEF void na_PrintMacroix8(const NATestUTF8Char* macroString, int8 value)
 
 
 
-NATEST_DEF NATestUTF8Char* na_TestPriux16(uint16 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriux16(uint16 value) {
   return na_AllocSprintf("%04x", (int)(value & NATEST_MAX_u16));
 }
-NATEST_DEF NATestUTF8Char* na_TestPriix16(int16 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriix16(int16 value) {
   return na_AllocSprintf("%04x", (int)(value & NATEST_MAX_u16));
 }
 NATEST_HDEF void na_PrintMacroux16(const NATestUTF8Char* macroString, uint16 value) {
@@ -146,10 +146,10 @@ NATEST_HDEF void na_PrintMacroix16(const NATestUTF8Char* macroString, int16 valu
 
 
 
-NATEST_DEF NATestUTF8Char* na_TestPriux32(uint32 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriux32(uint32 value) {
   return na_AllocSprintf("%08x", (int)(value & NATEST_MAX_u32));
 }
-NATEST_DEF NATestUTF8Char* na_TestPriix32(int32 value) {
+NATEST_HDEF NATestUTF8Char* na_TestPriix32(int32 value) {
   return na_AllocSprintf("%08x", (int)(value & NATEST_MAX_u32));
 }
 NATEST_HDEF void na_PrintMacroux32(const NATestUTF8Char* macroString, uint32 value) {
@@ -169,12 +169,12 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   #define naGetu64Hi(u) ((uint32)((u) >> 32))
   #define naGetu64Lo(u) ((uint32)u)
 
-  NATEST_DEF NATestUTF8Char* na_TestPriux64(uint64 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriux64(uint64 value) {
     return na_AllocSprintf("%08x%08x",
       naGetu64Hi(value),
       naGetu64Lo(value));
   }
-  NATEST_DEF NATestUTF8Char* na_TestPriix64(int64 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriix64(int64 value) {
     return na_AllocSprintf("%08x%08x",
       naGeti64Hi(value),
       naGeti64Lo(value));
@@ -206,14 +206,14 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   #define naGetu128Hi(u) ((uint64)((u) >> 64))
   #define naGetu128Lo(u) ((uint64)u)
 
-  NATEST_DEF NATestUTF8Char* na_TestPriux128(uint128 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriux128(uint128 value) {
     return na_AllocSprintf("%08x%08x%08x%08x",
       naGetu64Hi(naGetu128Hi(value)),
       naGetu64Lo(naGetu128Hi(value)),
       naGetu64Hi(naGetu128Lo(value)),
       naGetu64Lo(naGetu128Lo(value)));
   }
-  NATEST_DEF NATestUTF8Char* na_TestPriix128(int128 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriix128(int128 value) {
     return na_AllocSprintf("%08x%08x%08x%08x",
       naGeti64Hi(naGeti128Hi(value)),
       naGeti64Lo(naGeti128Hi(value)),
@@ -247,7 +247,7 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
   #define naGetu128Hi(u) ((uint128)((u) >> 128))
   #define naGetu128Lo(u) ((uint128)u)
 
-  NATEST_DEF NATestUTF8Char* na_TestPriux256(uint256 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriux256(uint256 value) {
     return na_AllocSprintf("%08x%08x%08x%08x%08x%08x%08x%08x",
       naGetu64Hi(naGetu128Hi(naGetu256Hi(value))),
       naGetu64Lo(naGetu128Hi(naGetu256Hi(value))),
@@ -258,7 +258,7 @@ NATEST_HDEF void na_PrintMacroix32(const NATestUTF8Char* macroString, int32 valu
       naGetu64Hi(naGetu128Lo(naGetu256Lo(value))),
       naGetu64Lo(naGetu128Lo(naGetu256Lo(value))));
   }
-  NATEST_DEF NATestUTF8Char* na_TestPriix256(int256 value) {
+  NATEST_HDEF NATestUTF8Char* na_TestPriix256(int256 value) {
     return na_AllocSprintf("%08x%08x%08x%08x%08x%08x%08x%08x",
       naGeti64Hi(naGeti128Hi(naGeti256Hi(value))),
       naGeti64Lo(naGeti128Hi(naGeti256Hi(value))),
