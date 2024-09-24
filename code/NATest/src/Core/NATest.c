@@ -806,10 +806,12 @@ NATEST_HDEF void na_RevertGroupRestriction() {
 
 
 NATEST_HDEF void na_printTestGroup(NATestData* curTestData) {
-  printf("-- ");
-  na_PrintTestName(curTestData);
-  printf(NATEST_NL);
-  curTestData->nameHasBeenPrinted = NATEST_TRUE;
+  if(curTestData->parent) {
+    printf("-- ");
+    na_PrintTestName(curTestData);
+    printf(NATEST_NL);
+    curTestData->nameHasBeenPrinted = NATEST_TRUE;
+  }
 }
 
 

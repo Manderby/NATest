@@ -93,11 +93,13 @@ int main(int argc, const char **argv){
   // Start the testing environment.
   NATestBool success = naStartTesting(
     "Example",
-    0.01,
-    NATEST_TRUE, 
-    NATEST_TRUE, 
     argc,
     argv);
+    
+  naSetTestPrintsExpression(NATEST_TRUE);
+  naSetTestPrintsAllTests(NATEST_TRUE);
+  naSetTestPrintsFullGroupName(NATEST_TRUE);
+  naSetTimePerBenchmark(0.01);
     
   if(!success) {
     printf("Could not start Testing.");
