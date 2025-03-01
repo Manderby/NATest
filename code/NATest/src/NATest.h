@@ -85,12 +85,8 @@ NATEST_API void naIncErrorCount(void);
 // Runs a benchmark of expr as long as the time spent per benchmark is reached.
 // Outputs the number of executions per second. You can set the time spent per
 // benchmark case with naSetTimePerBenchmark. Default is .01 seconds. Lower
-<<<<<<< HEAD
 // values are quicker but might fluctuate more. Certain CPUs require higher
 // values to produce repeatable results.
-=======
-// values are quicker but less sound.
->>>>>>> 213bc03b765fc004b0b9e634a632193d59f63b92
 #define naBenchmark(expr)
 NATEST_API void naSetTimePerBenchmark(double seconds);
 
