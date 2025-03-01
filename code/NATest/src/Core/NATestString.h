@@ -1,44 +1,23 @@
 
 #include "NATestEnvironment.h"
 
-typedef struct NATestListItem NATestListItem;
-struct NATestListItem{
-  NATestListItem* prev;
-  NATestListItem* next;
-  void* data;
-};
+NATEST_HAPI NATestUTF8Char* na_AllocSprintf(const NATestUTF8Char* format, ...);
 
+NATEST_API NATestUTF8Char* naAllocTestStringEmpty(void);
+NATEST_API NATestUTF8Char* naAllocTestStringWithFormat(const NATestUTF8Char* format, ...);
+NATEST_API NATestUTF8Char* naAllocTestStringCEscaped(const NATestUTF8Char* inputString);
+NATEST_API NATestUTF8Char* naAllocTestStringDequote(const NATestUTF8Char* inputString);
+NATEST_API NATestUTF8Char* naAllocTestStringWithBasenameOfPath(const NATestUTF8Char* filePath);
 
+#if defined _WIN32
+  // Returns a newly allocated memory block containing the system-encoded
+  // string. COPIES ALWAYS!
+  NATEST_API TCHAR* naTestAllocSystemStringWithUTF8String(const NATestUTF8Char* utf8String);
 
-NATestListItem* naAllocateTestListItem(void* data){
-  NATestListItem* item = (NATestListItem*)malloc(sizeof(NATestListItem));
-  if(!item){
-    na_TestEmitError("Ran out of memory.");
-    return NATEST_NULL;
-  }
-  item->prev = item;
-  item->next = item;
-  item->data = data;
-  return item;
-}
-
-void naDeallocateTestListItem(NATestListItem* item){
-  item->prev->next = item->next;
-  item->next->prev = item->prev;
-  free(item->data);
-  free(item);
-}
-
-NATestBool naIsTestListEmpty(NATestListItem* item){
-  return item->next == item;
-}
-
-void naAddTestListBefore(NATestListItem* thisItem, NATestListItem* item){
-  item->prev = thisItem->prev;
-  item->next = thisItem;
-  thisItem->prev->next = item;
-  thisItem->prev = item;
-}
+  // Returns a newly allocated memory block containing the utf8-encoded
+  // string. COPIES ALWAYS!
+  NATEST_API NATestUTF8Char* naAllocTestStringFromSystemString(const TCHAR* systemString);
+#endif
 
 
 

@@ -5,8 +5,13 @@
   extern "C"{
 #endif
 
+
+
 // All necessary includes and definitions.
-#include "NATestEnvironment.h"
+#include "Core/NATestEnvironment.h"
+
+
+
 // Also include the macro printouts for convenience.
 #include "NAMacroPrintout.h"
 
@@ -30,6 +35,12 @@ NATEST_API void naStopTesting(void);
 // outputs are turned on. If printAllTests is false, only the tests which fail
 // will be printed.
 NATEST_API void naSetTestPrintsAllTests(NATestBool printAllTests);
+// Defines whether the expression to be tested will be printed if something is
+// output to the console. By default, printExpression is false.
+NATEST_API void naSetTestPrintsExpression(NATestBool printExpression);
+// Defines whether the test groups shall be printed as the full path. If false,
+// only the bottom-most name is printed. By default, this is set to true.
+NATEST_API void naSetTestPrintsFullGroupName(NATestBool printFullTestGroupName);
 
 // Turn on or off error and crash tests. By default, the execution is turned on.
 NATEST_API void naExecuteErrorTests(NATestBool executeErrorTests);
@@ -59,7 +70,7 @@ NATEST_API void naIncErrorCount(void);
 // Tests successfully if the expression would crash the application.
 #define naTestCrash(expr)
 
-// Groups together tests. Use it like naTestGroup("Multiple Tests"){ ... }
+// Groups together tests. Use it like naTestGroup("Multiple Tests") { ... }
 #define naTestGroup(string)
 
 // Groups together tests by calling the given function.
@@ -74,8 +85,12 @@ NATEST_API void naIncErrorCount(void);
 // Runs a benchmark of expr as long as the time spent per benchmark is reached.
 // Outputs the number of executions per second. You can set the time spent per
 // benchmark case with naSetTimePerBenchmark. Default is .01 seconds. Lower
+<<<<<<< HEAD
 // values are quicker but might fluctuate more. Certain CPUs require higher
 // values to produce repeatable results.
+=======
+// values are quicker but less sound.
+>>>>>>> 213bc03b765fc004b0b9e634a632193d59f63b92
 #define naBenchmark(expr)
 NATEST_API void naSetTimePerBenchmark(double seconds);
 
@@ -86,7 +101,7 @@ NATEST_API void naSetTimePerBenchmark(double seconds);
 
 
 // Inline implementations are in a separate file:
-#include "NATestII.h"
+#include "Core/NATestII.h"
 
 
 

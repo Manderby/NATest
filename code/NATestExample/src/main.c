@@ -28,12 +28,12 @@ void functionWithError(void){
 }
 
 void functionNotCrashing(void){
-  printf("I am not crashing.");
+  printf("I am not crashing.\n");
   fflush(stdout);
 }
 
 void functionCrashing(void){
-  printf("Crash imminent...");
+  printf("Crash imminent...\n");
   fflush(stdout);
   // Something like accessing the null pointer will lead to a crash.
   int* badPointer = NATEST_NULL;
@@ -74,11 +74,11 @@ void functionWhichNeedsEvenMoreTime(void){
   }
 }
 
-void functionWhichComputesSomething(void){
+void functionWhichComputesSomethingRandomly(void){
   for(int i = 0; i < 10000; ++i){
     static int myCounter = 0;
     // The expression naTestIn always evaluates to a different uint32 number
-    // each time the programm executes it.
+    // each time the program executes it.
     myCounter += naTestIn;
   }
 }
@@ -86,18 +86,20 @@ void functionWhichComputesSomething(void){
 void benchmarks(void){
   naBenchmark(functionWhichNeedsTime());
   naBenchmark(functionWhichNeedsEvenMoreTime());
-  naBenchmark(functionWhichComputesSomething());
+  naBenchmark(functionWhichComputesSomethingRandomly());
 }
 
 int main(int argc, const char **argv){ 
   // Start the testing environment.
   NATestBool success = naStartTesting(
     "Example",
-    0.01,
-    NATEST_TRUE, 
-    NATEST_TRUE, 
     argc,
     argv);
+    
+  naSetTestPrintsExpression(NATEST_TRUE);
+  naSetTestPrintsAllTests(NATEST_TRUE);
+  naSetTestPrintsFullGroupName(NATEST_TRUE);
+  naSetTimePerBenchmark(0.01);
     
   if(!success) {
     printf("Could not start Testing.");
@@ -111,63 +113,67 @@ int main(int argc, const char **argv){
   // Use naUntested anywhere in the test application to remember things which
   // are not tested yet. A call to naPrintUntested will list all registered
   // Strings.
-//  naUntested("I need to test P = NP");
-//  naUntested("Test buffer overflows");
-//  naPrintUntested();
+  naUntested("I need to test P == NP");
+  naUntested("Test buffer overflows");
+  naPrintUntested();
 
   // You can run benchmars anywhere in your test application and they will be
   // executed on the spot with approximately the number of seconds each which
   // you defined when using naStartTesting.
-//  printf("Benchmarks:" NATEST_NL);
-//  benchmarks();
+  printf("Benchmarks:" NATEST_NL);
+  benchmarks();
 
   // When naStopTesting is called, a final printout is made an all testing
   // memory is released.
   naStopTesting();
 
-//  naPrintMacro(__LINE__);
-//  naPrintMacroDefined(UNDEFINED_MACRO);
-//  #define DEFINED_MACRO
-//  naPrintMacroDefined(DEFINED_MACRO);
-//  #define DEFINED_MACRO_WITH_VALUE 1234
-//  naPrintMacroDefined(DEFINED_MACRO_WITH_VALUE);
-//
-//  naPrintMacroInt(DEFINED_MACRO_WITH_VALUE);
-//  naPrintMacroIntHex(DEFINED_MACRO_WITH_VALUE);
-//  naPrintMacroIntSpecial(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
-//  naPrintMacroIntSpecialHex(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
-//  
-//  #define THIS_IS_TRUE 1
-//  naPrintMacroIntYesNo(THIS_IS_TRUE);
-//  
-//  enum{
-//    MY_VALUE_A,
-//    MY_VALUE_B,
-//    MY_VALUE_C,
-//    COUNT
-//  };
-//  const char* enumStrings[COUNT] = {
-//    "Value A",
-//    "Value B",
-//    "Value C"
-//  };
-//  naPrintMacroEnum(MY_VALUE_A, enumStrings, COUNT);
-//  
-//  #define MY_NUMBER 0xfdecba98
-//  naPrintMacroux8(MY_NUMBER);
-//  naPrintMacroix8(MY_NUMBER);
-//  naPrintMacroux16(MY_NUMBER);
-//  naPrintMacroix16(MY_NUMBER);
-//  naPrintMacroux32(MY_NUMBER);
-//  naPrintMacroix32(MY_NUMBER);
-//  naPrintMacroux64(MY_NUMBER);
-//  naPrintMacroix64(MY_NUMBER);
-//  naPrintMacroux128(MY_NUMBER);
-//  naPrintMacroix128(MY_NUMBER);
-//  naPrintMacroux256(MY_NUMBER);
-//  naPrintMacroix256(MY_NUMBER);
+  // There are many helping macros define which allow you to print out
+  // any of your macros to help debugging.
+  printf("Printing some macros:" NATEST_NL);
+
+  naPrintMacro(__LINE__);
+  naPrintMacroDefined(UNDEFINED_MACRO);
+  #define DEFINED_MACRO
+  naPrintMacroDefined(DEFINED_MACRO);
+  #define DEFINED_MACRO_WITH_VALUE 1234
+  naPrintMacroDefined(DEFINED_MACRO_WITH_VALUE);
+
+  naPrintMacroInt(DEFINED_MACRO_WITH_VALUE);
+  naPrintMacroIntHex(DEFINED_MACRO_WITH_VALUE);
+  naPrintMacroIntSpecial(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
+  naPrintMacroIntSpecialHex(DEFINED_MACRO_WITH_VALUE, 1234, "My favourite value!");
   
-  printf("Application finished. Press enter.\n");
+  #define THIS_IS_TRUE 1
+  naPrintMacroIntYesNo(THIS_IS_TRUE);
+  
+  enum{
+    MY_VALUE_A,
+    MY_VALUE_B,
+    MY_VALUE_C,
+    COUNT
+  };
+  const char* enumStrings[COUNT] = {
+    "Value A",
+    "Value B",
+    "Value C"
+  };
+  naPrintMacroEnum(MY_VALUE_A, enumStrings, COUNT);
+  
+  #define MY_NUMBER 0xfdecba98
+  naPrintMacroux8(MY_NUMBER);
+  naPrintMacroix8(MY_NUMBER);
+  naPrintMacroux16(MY_NUMBER);
+  naPrintMacroix16(MY_NUMBER);
+  naPrintMacroux32(MY_NUMBER);
+  naPrintMacroix32(MY_NUMBER);
+  naPrintMacroux64(MY_NUMBER);
+  naPrintMacroix64(MY_NUMBER);
+  naPrintMacroux128(MY_NUMBER);
+  naPrintMacroix128(MY_NUMBER);
+  naPrintMacroux256(MY_NUMBER);
+  naPrintMacroix256(MY_NUMBER);
+  
+  printf("\nApplication finished. Press enter.\n");
   (void)getc(stdin);
 
   return 0;

@@ -12,19 +12,24 @@ else()
 endif()
 
 set(sourceFiles
-  src/NAMacroPrintout.c
   src/NAMacroPrintout.h
-  src/NAMacroPrintoutII.h
-  src/NATest.c
   src/NATest.h
-  src/NATestEnvironment.h
-  src/NATestII.h
-  src/NATestList.h
-  src/NATestString.c
-  src/NATestString.h
-  src/NATestStringII.h
+)
+
+set(coreSourceFiles
+  src/Core/NATest.c
+  src/Core/NAMacroPrintout.c
+  src/Core/NAMacroPrintoutII.h
+  src/Core/NATestEnvironment.h
+  src/Core/NATestII.h
+  src/Core/NATestList.h
+  src/Core/NATestString.c
+  src/Core/NATestString.h
 )
 
 source_group("" FILES ${sourceFiles})
 target_sources(${TARGET_NAME} PRIVATE ${sourceFiles})
+
+source_group("Core" FILES ${coreSourceFiles})
+target_sources(${TARGET_NAME} PRIVATE ${coreSourceFiles})
 
