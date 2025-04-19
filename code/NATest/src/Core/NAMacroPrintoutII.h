@@ -153,18 +153,18 @@ NATEST_HAPI void na_PrintMacroix32(
 #ifdef NATEST_i64_NATIVE
   NATEST_HAPI void na_PrintMacroux64(
     const NATestUTF8Char* macroString,
-    uint64 value);
+    NATestUInt64 value);
   NATEST_HAPI void na_PrintMacroix64(
     const NATestUTF8Char* macroString,
-    int64 value);
+    NATestInt64 value);
   #define naPrintMacroux64(macro)\
     na_PrintMacroux64(\
       #macro,\
-      (uint64)(macro))
+      (NATestUInt64)(macro))
   #define naPrintMacroix64(macro)\
     na_PrintMacroix64(\
       #macro,\
-      (int64)(macro))
+      (NATestInt64)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux64(
     const NATestUTF8Char* macroString);
@@ -179,18 +179,18 @@ NATEST_HAPI void na_PrintMacroix32(
 #ifdef NATEST_i128_NATIVE
   NATEST_HAPI void na_PrintMacroux128(
     const NATestUTF8Char* macroString,
-    uint128 value);
+    NATestUInt128 value);
   NATEST_HAPI void na_PrintMacroix128(
     const NATestUTF8Char* macroString,
-    int128 value);
+    NATestInt128 value);
   #define naPrintMacroux128(macro)\
     na_PrintMacroux128(\
       #macro,\
-      (uint128)(macro))
+      (NATestUInt128)(macro))
   #define naPrintMacroix128(macro)\
     na_PrintMacroix128(\
       #macro,\
-      (int128)(macro))
+      (NATestInt128)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux128(
     const NATestUTF8Char* macroString);
@@ -205,18 +205,18 @@ NATEST_HAPI void na_PrintMacroix32(
 #ifdef NATEST_i256_NATIVE
   NATEST_HAPI void na_PrintMacroux256(
     const NATestUTF8Char* macroString,
-    uint256 value);
+    NATestUInt256 value);
   NATEST_HAPI void na_PrintMacroix256(
     const NATestUTF8Char* macroString,
-    int256 value);
+    NATestInt256 value);
   #define naPrintMacroux256(macro)\
     na_PrintMacroux256(\
       #macro,\
-      (uint256)(macro))
+      (NATestUInt256)(macro))
   #define naPrintMacroix256(macro)\
     na_PrintMacroix256(\
       #macro,\
-      (int256)(macro))
+      (NATestInt256)(macro))
 #else
   NATEST_HAPI void na_PrintMacroux256(
     const NATestUTF8Char* macroString);

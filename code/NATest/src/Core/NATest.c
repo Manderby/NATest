@@ -856,7 +856,6 @@ NATEST_HDEF uint32 na_GetBenchmarkIn() {
 
 
 NATEST_HDEF double na_BenchmarkTime() {
-  // Note: Reimplemented here because NADateTime uses int64 to compute.
   #if defined _WIN32
     FILETIME fileTime;
     GetSystemTimeAsFileTime(&fileTime);
