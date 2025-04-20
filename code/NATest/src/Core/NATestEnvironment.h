@@ -11,8 +11,8 @@
 // Defines up to which bit size the current environment provides native
 // integer types. You can overwrite this using preprocessor macros.
 // Default is 256
-#if !defined NA_NATIVE_INTEGER_UP_TO
-  #define NA_NATIVE_INTEGER_UP_TO 256
+#if !defined NA_TEST_NATIVE_INTEGER_UP_TO
+  #define NA_TEST_NATIVE_INTEGER_UP_TO 256
 #endif
 
 
@@ -119,17 +119,17 @@ typedef uint16_t uint16;
 typedef int32_t  int32;
 typedef uint32_t uint32;
 
-#if defined UINT64_MAX && UINT64_MAX == 0xffffffffffffffffuLL && NA_NATIVE_INTEGER_UP_TO >= 64
+#if defined UINT64_MAX && UINT64_MAX == 0xffffffffffffffffuLL && NA_TEST_NATIVE_INTEGER_UP_TO >= 64
   #define NATEST_i64_NATIVE
   typedef int64_t  NATestInt64;
   typedef uint64_t NATestUInt64;
 #endif
-#if defined __SIZEOF_INT128__ && NA_NATIVE_INTEGER_UP_TO >= 128
+#if defined __SIZEOF_INT128__ && NA_TEST_NATIVE_INTEGER_UP_TO >= 128
   #define NATEST_i128_NATIVE
   typedef signed   __int128 NATestInt128;
   typedef unsigned __int128 NATestUInt128;
 #endif
-#if defined __SIZEOF_INT256__ && NA_NATIVE_INTEGER_UP_TO >= 256
+#if defined __SIZEOF_INT256__ && NA_TEST_NATIVE_INTEGER_UP_TO >= 256
   #define NATEST_i256_NATIVE
   typedef signed   __int256 NATestInt256;
   typedef unsigned __int256 NATestUInt256;
